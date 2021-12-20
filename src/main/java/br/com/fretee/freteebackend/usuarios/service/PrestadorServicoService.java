@@ -6,8 +6,10 @@ import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
 import br.com.fretee.freteebackend.usuarios.entity.Veiculo;
 import br.com.fretee.freteebackend.usuarios.repository.PrestadorServicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+@Service
 public class PrestadorServicoService {
     @Autowired
     private PrestadorServicoRepository prestadorServicoRepository;

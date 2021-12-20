@@ -9,10 +9,10 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class ImagemService {
-    private String path;
+    protected String path;
 
     public InputStream findImageAsInputStream(String fotoId)  {
-        var image = new File(path + "/${fotoId}.png");
+        var image = new File(path + "/" + fotoId + ".png");
 
         try {
             FileInputStream imageInputStream = new FileInputStream(image);
@@ -26,7 +26,7 @@ public class ImagemService {
 
     public String saveImage(MultipartFile imageParaSalvar) {
         var uuid = UUID.randomUUID();
-        var image = new File(path + "/${uuid}.png");
+        var image = new File(path + "/" + uuid + ".png");
 
         try {
             imageParaSalvar.transferTo(image);
@@ -40,7 +40,7 @@ public class ImagemService {
 
     public void deleteImagem(String fotoId) {
         try{
-            Files.deleteIfExists(Paths.get(path + "/${fotoId}.png"));
+            Files.deleteIfExists(Paths.get(path + "/" + fotoId + ".png"));
         }catch(NoSuchFileException e) {
             System.out.println("Imagem não encontrada");
         } catch (IOException e) {

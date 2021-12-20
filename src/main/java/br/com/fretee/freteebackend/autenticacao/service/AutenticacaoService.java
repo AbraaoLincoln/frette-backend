@@ -5,7 +5,9 @@ import br.com.fretee.freteebackend.autenticacao.entity.Credenciais;
 import br.com.fretee.freteebackend.autenticacao.repository.CredenciasRepository;
 import br.com.fretee.freteebackend.exceptions.CredenciasInvalidas;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AutenticacaoService implements AutenticacaoApi {
     @Autowired
     private CredenciasRepository credenciasRepository;

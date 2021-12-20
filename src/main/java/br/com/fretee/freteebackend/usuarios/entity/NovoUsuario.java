@@ -1,5 +1,8 @@
 package br.com.fretee.freteebackend.usuarios.entity;
 
+import lombok.Data;
+
+@Data
 public class NovoUsuario {
     private String nome;
     private String telefone;
