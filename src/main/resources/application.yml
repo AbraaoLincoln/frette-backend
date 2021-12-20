@@ -1,0 +1,36 @@
+# Database config
+spring:
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      #ddl-auto: create
+      #ddl-auto: update
+      ddl-auto: create-drop
+  properties:
+    hibernate:
+      hbm2dll:
+        create_namespaces: true
+  datasource:
+    platform: postgres
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/fretee
+    username: spring_client
+    password: spring
+    continue-on-error: true
+  # file upload conf
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# serve config
+server:
+  port: 8080
+
+# imagens location
+fotos:
+  usuarios:
+    diretorio: ${PATH_DIRETORIO_IMAGENS_USUARIOS}
+  veiculos:
+    diretorio: ${PATH_DIRETORIO_IMAGENS_VEICULOS}
