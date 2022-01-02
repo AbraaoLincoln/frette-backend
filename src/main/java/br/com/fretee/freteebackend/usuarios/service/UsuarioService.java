@@ -58,6 +58,12 @@ public class UsuarioService implements UserDetailsService {
         return usuario.get();
     }
 
+    public Usuario findUsuarioByNomeUsuario(String nomeUsuario) throws UsuarioNotFindException {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findByNomeUsuario(nomeUsuario);
+        if(usuarioOptional.isEmpty()) throw new UsuarioNotFindException();
+        return  usuarioOptional.get();
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<Usuario> user = usuarioRepository.findByNomeUsuario(username);
@@ -76,43 +82,5 @@ public class UsuarioService implements UserDetailsService {
         return new User(user.get().getNomeUsuario(), user.get().getSenha(), permissoes);
     }
 
-    @GetMapping("/token/refresh")
-    public void refreshUserToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String authorizationHeader = request.getHeader(AUTHORIZATION);
 
-        if(authorizationHeader != null && authorizationHeader.startsWith( jwtUtil.bearer)) {
-            try {
-                String refresh_token = authorizationHeader.substring(jwtUtil.bearer.length());
-
-                DecodedJWT decodedJWT = jwtUtil.verify(refresh_token);
-                String nomeUsuario = decodedJWT.getSubject();
-
-                Optional<Usuario> usuarioOptional = usuarioRepository.findByNomeUsuario(nomeUsuario);
-                if(usuarioOptional.isEmpty()) throw new UsuarioNotFindException();
-                Usuario usuario = usuarioOptional.get();
-
-                String accessToken = jwtUtil.generateAccessToken(usuario.getNomeUsuario(), usuario.getPermissoes().stream().map(Permissao::getNome).collect(Collectors.toList()));
-
-                jwtUtil.writeAccessAndRefreshTokenToBodyOfResponse(accessToken, refresh_token, response);
-
-            }catch (UsuarioNotFindException unf) {
-                log.error("Usuario not found");
-                response.setHeader("error", "Usuario not found");
-                response.setStatus(BAD_REQUEST.value());
-                Map<String, String> error = new HashMap<>();
-                error.put("error_message", unf.getMessage());
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                new ObjectMapper().writeValue(response.getOutputStream(), error);
-            }catch (Exception e) {
-                log.error("Erro loggnig in {}:", e.getMessage());
-                response.setHeader("error", e.getMessage());
-                response.setStatus(FORBIDDEN.value());
-                //response.sendError(FORBIDDEN.value());
-                Map<String, String> error = new HashMap<>();
-                error.put("error_message", e.getMessage());
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                new ObjectMapper().writeValue(response.getOutputStream(), error);
-            }
-        }
-    }
 }

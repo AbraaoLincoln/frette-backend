@@ -35,11 +35,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         JwtUtil algorithmUtil = JwtUtil();
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(), algorithmUtil);
-        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
+        customAuthenticationFilter.setFilterProcessesUrl("/api/autenticacao/login");
 
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/api/login/**").permitAll();
+        http.authorizeRequests().antMatchers("/api/autenticacao/**").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/usuario").permitAll();
         http.authorizeRequests().antMatchers("/api/usuario/**").hasAnyAuthority(Permissoes.ADMIN.toString(),
                                                                                     Permissoes.USUARIO.toString(),
