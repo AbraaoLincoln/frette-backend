@@ -46,7 +46,7 @@ public class FreteeBackendApplication {
 			permissao.setId(Permissoes.USUARIO.getValue());
 			usuario.setPermissoes(new ArrayList<>());
 			usuario.getPermissoes().add(permissao);
-			usuarioService.saveUsurio(usuario);
+			usuarioService.addUsuario(usuario);
 		};
 	}
 }

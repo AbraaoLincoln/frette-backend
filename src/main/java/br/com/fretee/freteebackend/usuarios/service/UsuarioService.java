@@ -1,36 +1,23 @@
 package br.com.fretee.freteebackend.usuarios.service;
 
 import br.com.fretee.freteebackend.configuration.JwtUtil;
+import br.com.fretee.freteebackend.exceptions.NomeUsuarioAlreadyInUseException;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFindException;
 import br.com.fretee.freteebackend.usuarios.entity.Permissao;
 import br.com.fretee.freteebackend.usuarios.entity.Usuario;
+import br.com.fretee.freteebackend.usuarios.enums.Permissoes;
 import br.com.fretee.freteebackend.usuarios.repository.UsuarioRepository;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @Service
 @Slf4j
@@ -44,9 +31,20 @@ public class UsuarioService implements UserDetailsService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public Usuario saveUsurio(Usuario usuario) {
+    public Usuario addUsuario(Usuario usuario) throws NomeUsuarioAlreadyInUseException {
         //TODO: validar usuario
+
+        boolean nomeUsuarioJaEstaEmUso = usuarioRepository.verificarSeNomeUsuarioJaEstaEmUso(usuario.getNomeUsuario());
+        if(nomeUsuarioJaEstaEmUso) {
+            log.error("Nome de usuario {} já está em uso", usuario.getNomeUsuario());
+            throw new NomeUsuarioAlreadyInUseException();
+        }
+
         usuario.setSenha(bCryptPasswordEncoder.encode(usuario.getSenha()));
+        usuario.setPermissoes(new ArrayList<>());
+        Permissao permissaoUsuario = new Permissao();
+        permissaoUsuario.setId(Permissoes.USUARIO.getValue());
+        usuario.getPermissoes().add(permissaoUsuario);
         return usuarioRepository.save(usuario);
     }
 

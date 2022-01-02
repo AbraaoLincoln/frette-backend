@@ -13,7 +13,8 @@ public class NovoUsuario {
         var usuario = new Usuario();
         usuario.setNome(nome);
         usuario.setTelefone(telefone);
-
+        usuario.setNomeUsuario(nomeAutenticacao);
+        usuario.setSenha(senha);
         return usuario;
     }
 }
