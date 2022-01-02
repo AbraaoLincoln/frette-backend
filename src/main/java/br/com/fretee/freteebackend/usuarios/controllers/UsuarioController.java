@@ -5,6 +5,7 @@ import br.com.fretee.freteebackend.exceptions.UsuarioNotFindException;
 import br.com.fretee.freteebackend.usuarios.entity.NovoUsuario;
 import br.com.fretee.freteebackend.usuarios.service.ImagemUsuarioService;
 import br.com.fretee.freteebackend.usuarios.service.UsuarioService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("fretee/api/usuario")
+@RequestMapping("/api/usuario")
+@Slf4j
 public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
@@ -25,15 +27,15 @@ public class UsuarioController {
     private AutenticacaoApi autenticacao;
 
     @PostMapping
-    public void addUsuario(HttpServletResponse response, NovoUsuario novoUsuario, @RequestParam MultipartFile foto) {
-        System.out.println("criando usuario...");
-        System.out.println(imagemService.getPath());
+    public ResponseEntity addUsuario(NovoUsuario novoUsuario, @RequestParam MultipartFile foto) {
+        log.info("criando usuario {}", novoUsuario.getNome());
+        log.info("image path: {}", imagemService.getPath());
+
         var usuario = novoUsuario.toUsuario();
         usuario.setFoto(imagemService.saveImage(foto));
         usuario = usuarioService.saveUsurio(usuario);
-        autenticacao.saveCredenciasUsuario(usuario.getId(), novoUsuario.getNomeAutenticacao(), novoUsuario.getSenha());
-        response.setStatus(HttpStatus.CREATED.value());
 
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{userId}/foto")
@@ -44,7 +46,7 @@ public class UsuarioController {
             imageInputStream.transferTo(response.getOutputStream());
             response.flushBuffer();
         }catch (UsuarioNotFindException | IOException e) {
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            ResponseEntity.badRequest().build();
         }
 
         return new ResponseEntity(null);
