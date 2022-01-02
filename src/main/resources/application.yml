@@ -4,25 +4,30 @@ spring:
     database: POSTGRESQL
     show-sql: true
     hibernate:
-      #ddl-auto: create
+      ddl-auto: create
       #ddl-auto: update
-      ddl-auto: create-drop
-    properties:
-      hibernate:
-        hbm2dll:
-          create_namespaces: true
+#      ddl-auto: create-drop
+#    properties:
+#      hibernate:
+#        hbm2dll:
+#          create_namespaces: true
   datasource:
     platform: postgres
     driverClassName: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/fretee
-    username: spring_client
-    password: spring
+    username: ${DB_USER_NAME}
+    password: ${DB_PASSWORD}
     continue-on-error: true
   # file upload conf
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+#  main:
+#    banner-mode: off
+  output:
+    ansi:
+      enabled: ALWAYS
 
 # serve config
 server:
@@ -34,3 +39,4 @@ fotos:
     diretorio: ${PATH_DIRETORIO_IMAGENS_USUARIOS}
   veiculos:
     diretorio: ${PATH_DIRETORIO_IMAGENS_VEICULOS}
+

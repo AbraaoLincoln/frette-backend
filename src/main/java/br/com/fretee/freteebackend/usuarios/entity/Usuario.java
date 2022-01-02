@@ -2,6 +2,7 @@ package br.com.fretee.freteebackend.usuarios.entity;
 
 import br.com.fretee.freteebackend.frete.api.FreteApi;
 import br.com.fretee.freteebackend.frete.dto.FreteDTO;
+import br.com.fretee.freteebackend.usuarios.enums.Permissoes;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,6 +24,12 @@ public class Usuario {
     private float reputacao;
     private String telefone;
     private String foto;
+    private String nomeUsuario;
+    private String senha;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(schema = "usuario")
+    private List<Permissao> permissoes;
 
     @Transient
     public List<FreteDTO> getFretesComoContratante(@Autowired FreteApi freteApi) {
