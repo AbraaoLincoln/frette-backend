@@ -2,11 +2,9 @@ package br.com.fretee.freteebackend.configuration;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,32 +27,26 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @Slf4j
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
-    private final AlgorithmUtil algorithmUtil;
+    private final JwtUtil jwtUtil;
 
-    CustomAuthorizationFilter(AlgorithmUtil algorithmUtil) {
-        this.algorithmUtil =  algorithmUtil;
+    CustomAuthorizationFilter(JwtUtil algorithmUtil) {
+        this.jwtUtil =  algorithmUtil;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if(request.getServletPath().equals("/api/login")) {
+        if(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/usuario/token/refresh")) {
             filterChain.doFilter(request, response);
         }else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
-            String bearer = "Bearer ";
 
-            if(authorizationHeader != null && authorizationHeader.startsWith(bearer)) {
+            if(authorizationHeader != null && authorizationHeader.startsWith( jwtUtil.bearer)) {
                 try {
-                    String token = authorizationHeader.substring(bearer.length());
+                    String token = authorizationHeader.substring(jwtUtil.bearer.length());
 
-                    JWTVerifier verifier = JWT.require(algorithmUtil.getAlgorithm()).build();
-                    DecodedJWT decodedJWT = verifier.verify(token);
-
+                    DecodedJWT decodedJWT = jwtUtil.verify(token);
                     String nomeUsuario = decodedJWT.getSubject();
-                    String[] permissoesArray = decodedJWT.getClaim("permissoes").asArray(String.class);
-
-                    List<SimpleGrantedAuthority> permissoes = new ArrayList<>();
-                    stream(permissoesArray).forEach(permissao -> permissoes.add(new SimpleGrantedAuthority(permissao)));
+                    List<SimpleGrantedAuthority> permissoes = jwtUtil.getPermissoes(decodedJWT);
 
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(nomeUsuario, null, permissoes);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);

@@ -33,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        AlgorithmUtil algorithmUtil = new AlgorithmUtil();
+        JwtUtil algorithmUtil = JwtUtil();
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(), algorithmUtil);
         customAuthenticationFilter.setFilterProcessesUrl("/api/login");
 
@@ -53,5 +53,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public JwtUtil JwtUtil() {
+        return new JwtUtil();
     }
 }
