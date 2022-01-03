@@ -10,7 +10,8 @@ public class VeiculoDTO {
     private float largura;
     private float altura;
     private float comprimento;
-    private float pretadorServicoId;
+    private String foto;
+    private Integer id;
 
     public Veiculo toVeiculo() {
         var veiculo = new Veiculo();

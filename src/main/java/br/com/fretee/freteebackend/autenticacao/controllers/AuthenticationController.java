@@ -1,7 +1,7 @@
 package br.com.fretee.freteebackend.autenticacao.controllers;
 
 import br.com.fretee.freteebackend.configuration.JwtUtil;
-import br.com.fretee.freteebackend.exceptions.UsuarioNotFindException;
+import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.usuarios.entity.Permissao;
 import br.com.fretee.freteebackend.usuarios.entity.Usuario;
 import br.com.fretee.freteebackend.usuarios.service.UsuarioService;
@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -53,7 +52,7 @@ public class AuthenticationController {
 
                 jwtUtil.writeAccessAndRefreshTokenToBodyOfResponse(accessToken, refresh_token, response);
 
-            }catch (UsuarioNotFindException unf) {
+            }catch (UsuarioNotFoundException unf) {
                 log.error("Usuario not found");
                 response.setHeader("error", "Usuario not found");
                 response.setStatus(BAD_REQUEST.value());

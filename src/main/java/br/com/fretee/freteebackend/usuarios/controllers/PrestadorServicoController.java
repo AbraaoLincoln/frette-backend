@@ -1,36 +1,67 @@
 package br.com.fretee.freteebackend.usuarios.controllers;
 
-import br.com.fretee.freteebackend.exceptions.UsuarioNotFindException;
+import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
+import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
+import br.com.fretee.freteebackend.usuarios.dto.NovoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.PrestadorServicoDTO;
 import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
+import br.com.fretee.freteebackend.usuarios.entity.Localizacao;
 import br.com.fretee.freteebackend.usuarios.service.PrestadorServicoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.Principal;
 
 @RestController
-@RequestMapping("fretee/api/prestador-servico")
+@RequestMapping("/api/prestador-servico")
+@Slf4j
 public class PrestadorServicoController {
     @Autowired
     private PrestadorServicoService prestadorServicoService;
 
     @PostMapping
-    public ResponseEntity cadastrarPrestadorServico(HttpServletResponse response , PrestadorServicoDTO prestadorServicoDTO, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) {
-        System.out.println("cadastrando prestador de servico");
+    public ResponseEntity cadastrarPrestadorServico(Principal principal, NovoPrestadorServico prestadorServicoDTO, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) {
 
         try{
-            prestadorServicoService.cadastraUsuarioComoPrestadorServico(prestadorServicoDTO, veiculoDTO, fotoVeiculo);
-            response.setStatus(HttpStatus.CREATED.value());
-        }catch (UsuarioNotFindException unfe) {
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            prestadorServicoService.cadastraUsuarioComoPrestadorServico(principal, prestadorServicoDTO, veiculoDTO, fotoVeiculo);
+            return ResponseEntity.created(new URI("/api/prestador-servico")).build();
+        }catch (UsuarioNotFoundException unfe) {
+            return ResponseEntity.badRequest().build();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
+    }
 
-        return new ResponseEntity(null);
+    @GetMapping("/info")
+    public ResponseEntity<PrestadorServicoDTO> getPrestadorServicoInfo(Principal principal) {
+        try{
+            return ResponseEntity.ok().body(prestadorServicoService.getPrestadorServicoInfo(principal));
+        } catch (PrestadorServicoNotFoundException e) {
+            log.error("Prestador de servico não encontrado: {}", principal.getName());
+            return ResponseEntity.badRequest().build();
+        } catch (UsuarioNotFoundException e) {
+            log.error("Usuario não encontrado: {}", principal.getName());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PatchMapping("/localizacao")
+    public ResponseEntity atualizarLocalizacao(Principal principal, Localizacao localizacao) {
+        try{
+            prestadorServicoService.atualizarLocalizacao(principal, localizacao);
+            return ResponseEntity.ok().build();
+        } catch (PrestadorServicoNotFoundException e) {
+            log.error("Prestador de servico não encontrado: {}", principal.getName());
+            return ResponseEntity.badRequest().build();
+        } catch (UsuarioNotFoundException e) {
+            log.error("Usuario não encontrado: {}", principal.getName());
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

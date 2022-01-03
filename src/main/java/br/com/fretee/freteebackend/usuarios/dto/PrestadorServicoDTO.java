@@ -6,18 +6,21 @@ import lombok.Data;
 
 @Data
 public class PrestadorServicoDTO {
-    private int usuarioId;
+    private String nomeCompleto;
+    private float reputacao;
+    private String telefone;
+    private String foto;
     private double longitude;
     private double latitude;
+    private int veiculo;
 
-    public PrestadorServico toPrestadorService() {
-        var prestadorServico = new PrestadorServico();
-
-        prestadorServico.setLongitude(longitude);
-        prestadorServico.setLatitude(latitude);
-        prestadorServico.setUsuario(new Usuario());
-        prestadorServico.getUsuario().setId(usuarioId);
-
-        return prestadorServico;
+    public PrestadorServicoDTO(Usuario usuario, PrestadorServico prestadorServico) {
+        this.nomeCompleto = usuario.getNomeCompleto();
+        this.reputacao = prestadorServico.getReputacao();
+        this.telefone = usuario.getTelefone();
+        this.foto = usuario.getFoto();
+        this.longitude = prestadorServico.getLongitude();
+        this.latitude = prestadorServico.getLatitude();
+        this.veiculo = prestadorServico.getVeiculo().getId();
     }
 }

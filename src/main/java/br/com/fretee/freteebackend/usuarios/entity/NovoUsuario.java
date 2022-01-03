@@ -4,14 +4,14 @@ import lombok.Data;
 
 @Data
 public class NovoUsuario {
-    private String nome;
+    private String nomeCompleto;
     private String telefone;
     private String nomeAutenticacao;
     private String senha;
 
     public Usuario toUsuario() {
         var usuario = new Usuario();
-        usuario.setNome(nome);
+        usuario.setNomeCompleto(nomeCompleto);
         usuario.setTelefone(telefone);
         usuario.setNomeUsuario(nomeAutenticacao);
         usuario.setSenha(senha);

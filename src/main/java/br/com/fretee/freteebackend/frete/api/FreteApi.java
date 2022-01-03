@@ -9,4 +9,6 @@ public interface FreteApi {
     public List<FreteDTO> getFretesByContratanteId(int contratanteId);
 
     public List<FreteDTO> getFretesByPrestadorDeServicoId(int prestadorServicoId);
+
+    public int getNumeroDeFretesRealizados(int usuarioId);
 }

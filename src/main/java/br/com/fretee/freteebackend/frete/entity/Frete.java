@@ -1,6 +1,8 @@
 package br.com.fretee.freteebackend.frete.entity;
 
 import br.com.fretee.freteebackend.frete.enums.StatusFrete;
+import br.com.fretee.freteebackend.usuarios.entity.Usuario;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -8,6 +10,7 @@ import java.time.LocalTime;
 
 @Entity
 @Table(schema = "frete", name = "fretes")
+@Data
 public class Frete {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +24,9 @@ public class Frete {
     private boolean precisaAjudade;
     private StatusFrete status;
 
-    private int contratanteId;
-    private int pretadorServicoId;
+    @OneToOne
+    private Usuario contratante;
+
+    @OneToOne
+    private Usuario prestadorServico;
 }

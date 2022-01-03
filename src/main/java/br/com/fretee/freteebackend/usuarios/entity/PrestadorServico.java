@@ -11,6 +11,7 @@ public class PrestadorServico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    private float reputacao;
     private double latitude;
     private double longitude;
 

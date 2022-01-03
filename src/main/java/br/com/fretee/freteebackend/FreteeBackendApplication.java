@@ -1,10 +1,14 @@
 package br.com.fretee.freteebackend;
 
+import br.com.fretee.freteebackend.configuration.JwtUtil;
 import br.com.fretee.freteebackend.usuarios.entity.Permissao;
 import br.com.fretee.freteebackend.usuarios.entity.Usuario;
 import br.com.fretee.freteebackend.usuarios.enums.Permissoes;
+import br.com.fretee.freteebackend.usuarios.service.ImagemUsuarioService;
+import br.com.fretee.freteebackend.usuarios.service.ImagemVeiculoService;
 import br.com.fretee.freteebackend.usuarios.service.PermissaoService;
 import br.com.fretee.freteebackend.usuarios.service.UsuarioService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,6 +31,21 @@ public class FreteeBackendApplication {
 	}
 
 	@Bean
+	public JwtUtil JwtUtil() {
+		return new JwtUtil();
+	}
+
+	@Bean
+	public ImagemUsuarioService imagemUsuarioService(@Value("${fotos.usuarios.diretorio}") String path) {
+		return new ImagemUsuarioService(path);
+	}
+
+	@Bean
+	public ImagemVeiculoService imagemVeiculoService(@Value("${fotos.veiculos.diretorio}") String path) {
+		return new ImagemVeiculoService(path);
+	}
+
+	@Bean
 	CommandLineRunner run(PermissaoService permissaoService) {
 		return args -> {
 			permissaoService.salvarPermissao(Permissoes.ADMIN.toString());
@@ -39,9 +58,10 @@ public class FreteeBackendApplication {
 	CommandLineRunner run1(UsuarioService usuarioService) {
 		return args -> {
 			Usuario usuario = new Usuario();
-			usuario.setNome("Teste");
-			usuario.setNomeUsuario("Teste123");
+			usuario.setNomeCompleto("teste");
+			usuario.setNomeUsuario("teste123");
 			usuario.setSenha("123");
+			usuario.setTelefone("(90)988776655");
 			Permissao permissao = new Permissao();
 			permissao.setId(Permissoes.USUARIO.getValue());
 			usuario.setPermissoes(new ArrayList<>());
