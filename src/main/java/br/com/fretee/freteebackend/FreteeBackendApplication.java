@@ -58,11 +58,12 @@ public class FreteeBackendApplication {
 
 	@Bean
 	CommandLineRunner run1(UsuarioService usuarioService, PrestadorServicoRepository prestadorServicoRepository, VeiculoRepository veiculoRepository) {
-		String[] args1 = {"Gustavo Luan Felipe Peixoto", "gustavo", "(84) 99658-8429", "male_avatar", "veiculo1"};
+		String[] args1 = {"Gustavo Luan Felipe Peixoto", "gustavo", "(84) 99658-8429","male_avatar", "veiculo1"};
 		String[] args2 = {"Thales Diego Severino Fogaca", "thales", "(84) 98206-3797", "male_avatar", "veiculo2"};
 		String[] args3 = {"Gabriel Juan Ricardo Cardoso", "gabriel", "(84) 99819-9982", "male_avatar", "veiculo3"};
 		String[] args4 = {"Marcia Vanessa Rita Monteiro", "marcia", "(84) 99801-0804", "female_avatar", "veiculo4"};
 		String[] args5 = {"Nicolas Enzo da Mata", "nicolas", "(84) 99659-9712", "male_avatar", "veiculo5"};
+		float[] args6 = {4.5F, 0, 3.4F, 5, 4.1F};
 
 		List<String[]> usuarios = new ArrayList<>();
 		usuarios.add(args1);
@@ -71,11 +72,10 @@ public class FreteeBackendApplication {
 		usuarios.add(args4);
 		usuarios.add(args5);
 
-
-
 		return args -> {
 			double lat = Math.random();
 			double log = Math.random();
+			int index = 0;
 
 			for(String[] usuarioInfo : usuarios) {
 
@@ -85,6 +85,7 @@ public class FreteeBackendApplication {
 				usuario.setSenha("123");
 				usuario.setTelefone(usuarioInfo[2]);
 				usuario.setFoto(usuarioInfo[3]);
+				usuario.setReputacao(args6[index]);
 				usuario.setPermissoes(new ArrayList<>());
 				Permissao permissaoUsuario = new Permissao();
 				permissaoUsuario.setId(Permissoes.USUARIO.getValue());
@@ -110,6 +111,7 @@ public class FreteeBackendApplication {
 
 				lat = Math.random();
 				log = Math.random();
+				index++;
 			}
 		};
 	}
