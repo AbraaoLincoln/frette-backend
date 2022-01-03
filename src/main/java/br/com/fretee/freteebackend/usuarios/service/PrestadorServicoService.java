@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Optional;
 
@@ -26,6 +28,8 @@ public class PrestadorServicoService {
     private PrestadorServicoRepository prestadorServicoRepository;
     @Autowired
     private VeiculoService veiculoService;
+    @Autowired
+    private ImagemVeiculoService imagemVeiculoService;
     @Autowired
     private UsuarioService usuarioService;
 
@@ -59,5 +63,13 @@ public class PrestadorServicoService {
         prestadorServico.setLatitude(localizacao.getLatitude());
         prestadorServico.setLongitude(localizacao.getLongitude());
         prestadorServicoRepository.save(prestadorServico);
+    }
+
+    public void getFotoVeiculo(HttpServletResponse response, Principal principal) throws UsuarioNotFoundException, IOException, PrestadorServicoNotFoundException {
+        var usuario = usuarioService.findUsuarioByNomeUsuario(principal.getName());
+        var prestadorServico = findByUsuarioId(usuario.getId());
+        var imageInputStream = imagemVeiculoService.findImageAsInputStream(prestadorServico.getVeiculo().getFoto());
+        imageInputStream.transferTo(response.getOutputStream());
+        response.flushBuffer();
     }
 }
