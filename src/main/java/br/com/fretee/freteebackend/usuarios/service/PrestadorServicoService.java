@@ -18,7 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -65,11 +69,59 @@ public class PrestadorServicoService {
         prestadorServicoRepository.save(prestadorServico);
     }
 
-    public void getFotoVeiculo(HttpServletResponse response, Principal principal) throws UsuarioNotFoundException, IOException, PrestadorServicoNotFoundException {
-        var usuario = usuarioService.findUsuarioByNomeUsuario(principal.getName());
+    public void getFotoVeiculo(HttpServletResponse response, String prestadorServicoNome) throws UsuarioNotFoundException, IOException, PrestadorServicoNotFoundException {
+        var usuario = usuarioService.findUsuarioByNomeUsuario(prestadorServicoNome);
         var prestadorServico = findByUsuarioId(usuario.getId());
         var imageInputStream = imagemVeiculoService.findImageAsInputStream(prestadorServico.getVeiculo().getFoto());
         imageInputStream.transferTo(response.getOutputStream());
         response.flushBuffer();
+    }
+
+    public List<PrestadorServicoDTO> getPrestadoreDeServicoProximo(Localizacao localizacao) {
+        List<PrestadorServicoDTO> prestadoresDeServicoDTO = new ArrayList<>();
+        Iterable<PrestadorServico> prestadorServicos = prestadorServicoRepository.findAll();
+
+        prestadorServicos.forEach(prestadorServico -> {
+            PrestadorServicoDTO prestadorServicoDTO = new PrestadorServicoDTO(prestadorServico.getUsuario(), prestadorServico);
+            double distancia = calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServicoDTO.getLatitude(), prestadorServicoDTO.getLongitude());
+            prestadorServicoDTO.setDistancia(formatarDouble(distancia, 1));
+            prestadoresDeServicoDTO.add(prestadorServicoDTO);
+        });
+
+        prestadoresDeServicoDTO.sort((o1, o2) -> {
+            if(o1.getDistancia() > o2.getDistancia()) {
+                return 1;
+            }else if(o1.getDistancia() < o2.getDistancia()) {
+                return -1;
+            }else {
+                return 0;
+            }
+        });
+
+        return prestadoresDeServicoDTO;
+    }
+
+    private double calculateDistanceInKilometer(double userLat, double userLng,
+                                            double venueLat, double venueLng) {
+        final  double AVERAGE_RADIUS_OF_EARTH_KM = 6371;
+        double latDistance = Math.toRadians(userLat - venueLat);
+        double lngDistance = Math.toRadians(userLng - venueLng);
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(userLat)) * Math.cos(Math.toRadians(venueLat))
+                * Math.sin(lngDistance / 2) * Math.sin(lngDistance / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        //return (int) (Math.round(AVERAGE_RADIUS_OF_EARTH_KM * c));
+        return AVERAGE_RADIUS_OF_EARTH_KM * c;
+    }
+
+    private Double formatarDouble(double valor, int precisao) {
+        Double doubleFormatado = BigDecimal.valueOf(valor)
+                .setScale(precisao, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        return doubleFormatado;
     }
 }

@@ -59,9 +59,9 @@ public class FreteeBackendApplication {
 	@Bean
 	CommandLineRunner run1(UsuarioService usuarioService, PrestadorServicoRepository prestadorServicoRepository, VeiculoRepository veiculoRepository) {
 		String[] args1 = {"Gustavo Luan Felipe Peixoto", "gustavo", "(84) 99658-8429", "male_avatar", "veiculo1"};
-		String[] args2 = {"Thales Diego Severino Fogaça", "thales", "(84) 98206-3797", "male_avatar", "veiculo2"};
+		String[] args2 = {"Thales Diego Severino Fogaca", "thales", "(84) 98206-3797", "male_avatar", "veiculo2"};
 		String[] args3 = {"Gabriel Juan Ricardo Cardoso", "gabriel", "(84) 99819-9982", "male_avatar", "veiculo3"};
-		String[] args4 = {"Márcia Vanessa Rita Monteiro", "marcia", "(84) 99801-0804", "female_avatar", "veiculo4"};
+		String[] args4 = {"Marcia Vanessa Rita Monteiro", "marcia", "(84) 99801-0804", "female_avatar", "veiculo4"};
 		String[] args5 = {"Nicolas Enzo da Mata", "nicolas", "(84) 99659-9712", "male_avatar", "veiculo5"};
 
 		List<String[]> usuarios = new ArrayList<>();
@@ -72,8 +72,13 @@ public class FreteeBackendApplication {
 		usuarios.add(args5);
 
 
+
 		return args -> {
+			double lat = Math.random();
+			double log = Math.random();
+
 			for(String[] usuarioInfo : usuarios) {
+
 				Usuario usuario = new Usuario();
 				usuario.setNomeCompleto(usuarioInfo[0]);
 				usuario.setNomeUsuario(usuarioInfo[1]);
@@ -99,9 +104,12 @@ public class FreteeBackendApplication {
 				PrestadorServico prestadorServico = new PrestadorServico();
 				prestadorServico.setVeiculo(veiculo);
 				prestadorServico.setUsuario(usuario);
-				prestadorServico.setLongitude(50);
-				prestadorServico.setLatitude(100);
+				prestadorServico.setLongitude(log);
+				prestadorServico.setLatitude(lat);
 				prestadorServicoRepository.save(prestadorServico);
+
+				lat = Math.random();
+				log = Math.random();
 			}
 		};
 	}

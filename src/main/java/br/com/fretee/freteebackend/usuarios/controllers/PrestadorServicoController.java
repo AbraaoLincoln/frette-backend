@@ -6,6 +6,7 @@ import br.com.fretee.freteebackend.usuarios.dto.NovoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.PrestadorServicoDTO;
 import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
 import br.com.fretee.freteebackend.usuarios.entity.Localizacao;
+import br.com.fretee.freteebackend.usuarios.entity.PrestadorServico;
 import br.com.fretee.freteebackend.usuarios.service.ImagemVeiculoService;
 import br.com.fretee.freteebackend.usuarios.service.PrestadorServicoService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/prestador-servico")
@@ -69,20 +72,26 @@ public class PrestadorServicoController {
         }
     }
 
-    @GetMapping("/veiculo/foto")
-    public ResponseEntity getFotoVeiculo(HttpServletResponse response, Principal principal) {
+    @GetMapping("/{prestadorServicoNome}/veiculo/foto")
+    public ResponseEntity getFotoVeiculo(HttpServletResponse response, @PathVariable String prestadorServicoNome) {
         try{
-            prestadorServicoService.getFotoVeiculo(response, principal);
+            prestadorServicoService.getFotoVeiculo(response, prestadorServicoNome);
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         } catch (UsuarioNotFoundException e) {
-            log.error("Usuario {} não encontrado", principal.getName());
+            log.error("Usuario {} não encontrado", prestadorServicoNome);
             return ResponseEntity.badRequest().build();
         } catch (PrestadorServicoNotFoundException e) {
-            log.error("Prestador de servico {} não encontrado", principal.getName());
+            log.error("Prestador de servico {} não encontrado", prestadorServicoNome);
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping("/proximos")
+    public ResponseEntity<List<PrestadorServicoDTO>> getPrestadoreDeServicoProximo(Localizacao localizacao) {
+        List<PrestadorServicoDTO> prestadorServicoDTOS = prestadorServicoService.getPrestadoreDeServicoProximo(localizacao);
+        return ResponseEntity.ok().body(prestadorServicoDTOS);
     }
 }
