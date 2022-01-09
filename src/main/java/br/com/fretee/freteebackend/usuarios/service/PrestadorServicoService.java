@@ -1,6 +1,7 @@
 package br.com.fretee.freteebackend.usuarios.service;
 
 import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
+import br.com.fretee.freteebackend.exceptions.UsuarioAlreadyJoinAsPrestadorServico;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.usuarios.dto.NovoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.PrestadorServicoDTO;
@@ -37,15 +38,21 @@ public class PrestadorServicoService {
     @Autowired
     private UsuarioService usuarioService;
 
-    public void cadastraUsuarioComoPrestadorServico(Principal principal, NovoPrestadorServico novoPrestadorServico, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) throws UsuarioNotFoundException {
+    public void cadastraUsuarioComoPrestadorServico(Principal principal, NovoPrestadorServico novoPrestadorServico, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) throws UsuarioNotFoundException, UsuarioAlreadyJoinAsPrestadorServico {
         log.info("Cadastrando novo prestador de servico: {}", principal.getName());
 
         Usuario usuario = usuarioService.findUsuarioByNomeUsuario(principal.getName());
-        var veiculoId = veiculoService.cadastrarVeiculo(veiculoDTO.toVeiculo(), fotoVeiculo);
-        var prestadorServico = novoPrestadorServico.toPrestadorService(usuario);
-        prestadorServico.setVeiculo( new Veiculo());
-        prestadorServico.getVeiculo().setId(veiculoId);
-        prestadorServicoRepository.save(prestadorServico);
+
+        try{
+            findByUsuarioId(usuario.getId());
+            throw new UsuarioAlreadyJoinAsPrestadorServico();
+        }catch(PrestadorServicoNotFoundException e) {
+            var veiculoId = veiculoService.cadastrarVeiculo(veiculoDTO.toVeiculo(), fotoVeiculo);
+            var prestadorServico = novoPrestadorServico.toPrestadorService(usuario);
+            prestadorServico.setVeiculo( new Veiculo());
+            prestadorServico.getVeiculo().setId(veiculoId);
+            prestadorServicoRepository.save(prestadorServico);
+        }
     }
 
     public PrestadorServicoDTO getPrestadorServicoInfo(Principal principal) throws UsuarioNotFoundException, PrestadorServicoNotFoundException {

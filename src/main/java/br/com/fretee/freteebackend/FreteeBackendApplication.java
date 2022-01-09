@@ -63,6 +63,7 @@ public class FreteeBackendApplication {
 		String[] args3 = {"Gabriel Juan Ricardo Cardoso", "gabriel", "(84) 99819-9982", "male_avatar", "veiculo3"};
 		String[] args4 = {"Marcia Vanessa Rita Monteiro", "marcia", "(84) 99801-0804", "female_avatar", "veiculo4"};
 		String[] args5 = {"Nicolas Enzo da Mata", "nicolas", "(84) 99659-9712", "male_avatar", "veiculo5"};
+		String[] userTest = {"Teste da Silva", "teste", "(84) 99660-9717", "female_avatar", "veiculo5"};
 		float[] args6 = {4.5F, 0, 3.4F, 5, 4.1F};
 
 		List<String[]> usuarios = new ArrayList<>();
@@ -113,6 +114,19 @@ public class FreteeBackendApplication {
 				log = Math.random();
 				index++;
 			}
+
+			Usuario usuario = new Usuario();
+			usuario.setNomeCompleto(userTest[0]);
+			usuario.setNomeUsuario(userTest[1]);
+			usuario.setSenha("123");
+			usuario.setTelefone(userTest[2]);
+			usuario.setFoto(userTest[3]);
+			usuario.setReputacao(4.2f);
+			usuario.setPermissoes(new ArrayList<>());
+			Permissao permissaoUsuario = new Permissao();
+			permissaoUsuario.setId(Permissoes.USUARIO.getValue());
+			usuario.getPermissoes().add(permissaoUsuario);
+			usuarioService.addUsuario(usuario);
 		};
 	}
 }

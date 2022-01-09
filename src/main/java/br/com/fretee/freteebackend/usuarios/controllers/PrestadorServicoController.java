@@ -1,6 +1,7 @@
 package br.com.fretee.freteebackend.usuarios.controllers;
 
 import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
+import br.com.fretee.freteebackend.exceptions.UsuarioAlreadyJoinAsPrestadorServico;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.usuarios.dto.NovoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.PrestadorServicoDTO;
@@ -38,6 +39,10 @@ public class PrestadorServicoController {
             prestadorServicoService.cadastraUsuarioComoPrestadorServico(principal, prestadorServicoDTO, veiculoDTO, fotoVeiculo);
             return ResponseEntity.created(new URI("/api/prestador-servico")).build();
         }catch (UsuarioNotFoundException unfe) {
+            log.error("Usuario {} nao encontrado", principal.getName());
+            return ResponseEntity.badRequest().build();
+        } catch (UsuarioAlreadyJoinAsPrestadorServico e) {
+            log.error("Usuario {} já esta cadastrado(a) como prestador de servico", principal.getName());
             return ResponseEntity.badRequest().build();
         } catch (URISyntaxException e) {
             e.printStackTrace();
