@@ -34,12 +34,12 @@ public class UsuarioController {
 
         try{
             var usuario = novoUsuario.toUsuario();
-            usuario.setFoto(imagemService.saveImage(foto));
-            usuario = usuarioService.addUsuario(usuario);
+
+            usuario = usuarioService.addUsuario(usuario, foto);
 
             return ResponseEntity.created(new URI("/api/usuario")).build();
         }catch (NomeUsuarioAlreadyInUseException | URISyntaxException ex) {
-            return ResponseEntity.badRequest().header("error", "nome usuario invalido").build();
+            return ResponseEntity.badRequest().header("error", "nome usuario ja esta em uso").build();
         }
     }
 

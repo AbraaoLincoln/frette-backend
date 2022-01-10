@@ -94,9 +94,12 @@ public class PrestadorServicoController {
         }
     }
 
-    @GetMapping("/proximos")
-    public ResponseEntity<List<PrestadorServicoDTO>> getPrestadoreDeServicoProximo(Localizacao localizacao) {
-        List<PrestadorServicoDTO> prestadorServicoDTOS = prestadorServicoService.getPrestadoreDeServicoProximo(localizacao);
+    @GetMapping("/proximos/{latitude}/{longitude}")
+    public ResponseEntity<List<PrestadorServicoDTO>> getPrestadoreDeServicoProximo(@PathVariable double latitude, @PathVariable double longitude, Principal principal) {
+        Localizacao localizacao = new Localizacao();
+        localizacao.setLatitude(latitude);
+        localizacao.setLongitude(longitude);
+        List<PrestadorServicoDTO> prestadorServicoDTOS = prestadorServicoService.getPrestadoreDeServicoProximo(localizacao, principal);
         return ResponseEntity.ok().body(prestadorServicoDTOS);
     }
 }

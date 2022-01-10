@@ -84,26 +84,34 @@ public class PrestadorServicoService {
         response.flushBuffer();
     }
 
-    public List<PrestadorServicoDTO> getPrestadoreDeServicoProximo(Localizacao localizacao) {
+    public List<PrestadorServicoDTO> getPrestadoreDeServicoProximo(Localizacao localizacao, Principal principal) {
         List<PrestadorServicoDTO> prestadoresDeServicoDTO = new ArrayList<>();
-        Iterable<PrestadorServico> prestadorServicos = prestadorServicoRepository.findAll();
+        try {
+            Usuario usuario = usuarioService.findUsuarioByNomeUsuario(principal.getName());
+            Iterable<PrestadorServico> prestadorServicos = prestadorServicoRepository.findAll();
 
-        prestadorServicos.forEach(prestadorServico -> {
-            PrestadorServicoDTO prestadorServicoDTO = new PrestadorServicoDTO(prestadorServico.getUsuario(), prestadorServico);
-            double distancia = calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServicoDTO.getLatitude(), prestadorServicoDTO.getLongitude());
-            prestadorServicoDTO.setDistancia(formatarDouble(distancia, 1));
-            prestadoresDeServicoDTO.add(prestadorServicoDTO);
-        });
+            prestadorServicos.forEach(prestadorServico -> {
+                if(usuario.getId() != prestadorServico.getId()) {
+                    PrestadorServicoDTO prestadorServicoDTO = new PrestadorServicoDTO(prestadorServico.getUsuario(), prestadorServico);
+                    double distancia = calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServicoDTO.getLatitude(), prestadorServicoDTO.getLongitude());
+                    prestadorServicoDTO.setDistancia(formatarDouble(distancia, 1));
+                    prestadoresDeServicoDTO.add(prestadorServicoDTO);
+                }
+            });
 
-        prestadoresDeServicoDTO.sort((o1, o2) -> {
-            if(o1.getDistancia() > o2.getDistancia()) {
-                return 1;
-            }else if(o1.getDistancia() < o2.getDistancia()) {
-                return -1;
-            }else {
-                return 0;
-            }
-        });
+            prestadoresDeServicoDTO.sort((o1, o2) -> {
+                if(o1.getDistancia() > o2.getDistancia()) {
+                    return 1;
+                }else if(o1.getDistancia() < o2.getDistancia()) {
+                    return -1;
+                }else {
+                    return 0;
+                }
+            });
+
+        } catch (UsuarioNotFoundException e) {
+            log.error("Usuario {} nao encontrado", principal.getName());
+        }
 
         return prestadoresDeServicoDTO;
     }

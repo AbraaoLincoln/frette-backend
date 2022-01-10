@@ -74,8 +74,11 @@ public class FreteeBackendApplication {
 		usuarios.add(args5);
 
 		return args -> {
-			double lat = Math.random();
-			double log = Math.random();
+			//double lat = Math.random();
+			//double log = Math.random();
+			double lat = 37.5219983;
+			double log = -122.184;
+
 			int index = 0;
 
 			for(String[] usuarioInfo : usuarios) {
@@ -94,7 +97,7 @@ public class FreteeBackendApplication {
 				Permissao permissaoPrestadorServico = new Permissao();
 				permissaoUsuario.setId(Permissoes.PRESTADOR_SERVICO.getValue());
 				usuario.getPermissoes().add(permissaoPrestadorServico);
-				usuarioService.addUsuario(usuario);
+				usuarioService.addUsuarioTeste(usuario);
 
 				Veiculo veiculo = new Veiculo();
 				veiculo.setFoto(usuarioInfo[4]);
@@ -110,8 +113,8 @@ public class FreteeBackendApplication {
 				prestadorServico.setLatitude(lat);
 				prestadorServicoRepository.save(prestadorServico);
 
-				lat = Math.random();
-				log = Math.random();
+				lat += Math.random();
+				log += Math.random();
 				index++;
 			}
 
@@ -126,7 +129,7 @@ public class FreteeBackendApplication {
 			Permissao permissaoUsuario = new Permissao();
 			permissaoUsuario.setId(Permissoes.USUARIO.getValue());
 			usuario.getPermissoes().add(permissaoUsuario);
-			usuarioService.addUsuario(usuario);
+			usuarioService.addUsuarioTeste(usuario);
 		};
 	}
 }

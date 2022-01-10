@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.*;
@@ -26,6 +27,8 @@ public class UsuarioService implements UserDetailsService {
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
+    private ImagemUsuarioService imagemService;
+    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     private JwtUtil jwtUtil;
@@ -34,7 +37,24 @@ public class UsuarioService implements UserDetailsService {
     @Autowired
     private FreteApi freteApi;
 
-    public Usuario addUsuario(Usuario usuario) throws NomeUsuarioAlreadyInUseException {
+    public Usuario addUsuario(Usuario usuario, MultipartFile foto) throws NomeUsuarioAlreadyInUseException {
+        //TODO: validar usuario
+
+        boolean nomeUsuarioJaEstaEmUso = usuarioRepository.verificarSeNomeUsuarioJaEstaEmUso(usuario.getNomeUsuario());
+        if(nomeUsuarioJaEstaEmUso) {
+            log.error("Nome de usuario {} já está em uso", usuario.getNomeUsuario());
+            throw new NomeUsuarioAlreadyInUseException();
+        }
+
+        if(foto != null) usuario.setFoto(imagemService.saveImage(foto));
+        usuario.setSenha(bCryptPasswordEncoder.encode(usuario.getSenha()));
+        usuario.setPermissoes(new ArrayList<>());
+        permissaoService.addPermissaoDeUsuario(usuario);
+
+        return usuarioRepository.save(usuario);
+    }
+
+    public Usuario addUsuarioTeste(Usuario usuario) throws NomeUsuarioAlreadyInUseException {
         //TODO: validar usuario
 
         boolean nomeUsuarioJaEstaEmUso = usuarioRepository.verificarSeNomeUsuarioJaEstaEmUso(usuario.getNomeUsuario());

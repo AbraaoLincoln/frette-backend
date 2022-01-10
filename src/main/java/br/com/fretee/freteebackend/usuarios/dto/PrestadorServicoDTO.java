@@ -39,7 +39,11 @@ public class PrestadorServicoDTO {
             }
         }
 
-        String nome = nomeCompleto.substring(0, indexSegundoSpaco);
-        return nome;
+        if(count <= 1) {
+            return nomeCompleto;
+        }else {
+            return nomeCompleto.substring(0, indexSegundoSpaco);
+        }
+
     }
 }
