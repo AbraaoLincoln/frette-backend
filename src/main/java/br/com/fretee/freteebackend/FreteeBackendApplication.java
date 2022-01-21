@@ -9,6 +9,10 @@ import br.com.fretee.freteebackend.usuarios.enums.Permissoes;
 import br.com.fretee.freteebackend.usuarios.repository.PrestadorServicoRepository;
 import br.com.fretee.freteebackend.usuarios.repository.VeiculoRepository;
 import br.com.fretee.freteebackend.usuarios.service.*;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,6 +21,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +42,23 @@ public class FreteeBackendApplication {
 	@Bean
 	public JwtUtil JwtUtil() {
 		return new JwtUtil();
+	}
+
+	@Bean
+	public FirebaseMessaging getFirebaseMessaging(@Value("${firebase.serviceAccount.path}") String pathServiceAccount) {
+		try {
+			FileInputStream serviceAccount = new FileInputStream(pathServiceAccount);
+			FirebaseOptions options = FirebaseOptions.builder()
+										  .setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
+			FirebaseApp firebaseApp = FirebaseApp.initializeApp(options);
+			return FirebaseMessaging.getInstance(firebaseApp);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 	@Bean

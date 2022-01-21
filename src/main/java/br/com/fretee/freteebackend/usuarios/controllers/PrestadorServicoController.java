@@ -3,6 +3,7 @@ package br.com.fretee.freteebackend.usuarios.controllers;
 import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
 import br.com.fretee.freteebackend.exceptions.UsuarioAlreadyJoinAsPrestadorServico;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
+import br.com.fretee.freteebackend.exceptions.VeiculoNotFoundException;
 import br.com.fretee.freteebackend.usuarios.dto.NovoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.PrestadorServicoDTO;
 import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
@@ -10,6 +11,7 @@ import br.com.fretee.freteebackend.usuarios.entity.Localizacao;
 import br.com.fretee.freteebackend.usuarios.entity.PrestadorServico;
 import br.com.fretee.freteebackend.usuarios.service.ImagemVeiculoService;
 import br.com.fretee.freteebackend.usuarios.service.PrestadorServicoService;
+import br.com.fretee.freteebackend.usuarios.service.VeiculoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +32,8 @@ import java.util.List;
 public class PrestadorServicoController {
     @Autowired
     private PrestadorServicoService prestadorServicoService;
-
+    @Autowired
+    private VeiculoService veiculoService;
 
     @PostMapping
     public ResponseEntity cadastrarPrestadorServico(Principal principal, NovoPrestadorServico prestadorServicoDTO, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) {
@@ -77,6 +80,20 @@ public class PrestadorServicoController {
         }
     }
 
+    @GetMapping("/{nomeUsuario}/foto")
+    public ResponseEntity getFotoUsurio(HttpServletResponse response, @PathVariable String nomeUsuario) {
+        try{
+            prestadorServicoService.getFoto(response, nomeUsuario);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        } catch (UsuarioNotFoundException e) {
+            log.error("Usuario não encontrado: {}", nomeUsuario);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @GetMapping("/{prestadorServicoNome}/veiculo/foto")
     public ResponseEntity getFotoVeiculo(HttpServletResponse response, @PathVariable String prestadorServicoNome) {
         try{
@@ -90,6 +107,21 @@ public class PrestadorServicoController {
             return ResponseEntity.badRequest().build();
         } catch (PrestadorServicoNotFoundException e) {
             log.error("Prestador de servico {} não encontrado", prestadorServicoNome);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{prestadorServicoNome}/veiculo/info")
+    public ResponseEntity<VeiculoDTO> getVeiculoInfo(@PathVariable String prestadorServicoNome) {
+        try{
+            VeiculoDTO veiculoDTO = prestadorServicoService.getVeiculoInfo(prestadorServicoNome);
+            return ResponseEntity.ok().body(veiculoDTO);
+        }  catch (UsuarioNotFoundException e) {
+            log.error("Usuario {} não encontrado", prestadorServicoNome);
+            return ResponseEntity.badRequest().build();
+        }  catch (VeiculoNotFoundException e) {
+            log.error("Veiculo do suario {} não encontrado", prestadorServicoNome);
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }

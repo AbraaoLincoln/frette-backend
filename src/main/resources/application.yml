@@ -40,3 +40,7 @@ fotos:
   veiculos:
     diretorio: ${PATH_DIRETORIO_IMAGENS_VEICULOS}
 
+firebase:
+  serviceAccount:
+    path: ${PATH_FIREBASE_SERVICE_ACCOUNT}
+

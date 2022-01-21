@@ -7,6 +7,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Table(schema = "frete", name = "fretes")
@@ -17,11 +18,13 @@ public class Frete {
     private int id;
     private boolean ativo = true;
     private LocalDate dataCriacao = LocalDate.now();
+    private String origem;
+    private String destino;
     private LocalDate data;
     private LocalTime hora;
     private float preco;
     private String descricaoCarga;
-    private boolean precisaAjudade;
+    private Boolean precisaAjudade;
     private StatusFrete status;
 
     @OneToOne
@@ -29,4 +32,7 @@ public class Frete {
 
     @OneToOne
     private Usuario prestadorServico;
+
+    @OneToMany
+    private List<SolicitacaoServico> solicitacoesServicos;
 }

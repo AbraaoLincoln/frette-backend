@@ -1,6 +1,9 @@
 package br.com.fretee.freteebackend.usuarios.service;
 
+import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.exceptions.VeiculoNotFoundException;
+import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
+import br.com.fretee.freteebackend.usuarios.entity.PrestadorServico;
 import br.com.fretee.freteebackend.usuarios.entity.Veiculo;
 import br.com.fretee.freteebackend.usuarios.repository.VeiculoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,5 +30,12 @@ public class VeiculoService {
         Optional<Veiculo> veiculoOptional = veiculoRepository.findById(veiculoId);
         if(veiculoOptional.isEmpty()) throw new VeiculoNotFoundException();
         return veiculoOptional.get();
+    }
+
+    public VeiculoDTO getVeiculoInfoDoPrestadorServico(PrestadorServico prestadorServico) throws VeiculoNotFoundException {
+        Veiculo veiculo = findVeiculoById(prestadorServico.getVeiculo().getId());
+
+        return new VeiculoDTO(veiculo.getLargura(), veiculo.getAltura(), veiculo.getComprimento(),
+                              veiculo.getFoto(), veiculo.getId());
     }
 }

@@ -3,6 +3,7 @@ package br.com.fretee.freteebackend.usuarios.service;
 import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
 import br.com.fretee.freteebackend.exceptions.UsuarioAlreadyJoinAsPrestadorServico;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
+import br.com.fretee.freteebackend.exceptions.VeiculoNotFoundException;
 import br.com.fretee.freteebackend.usuarios.dto.NovoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.PrestadorServicoDTO;
 import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -37,6 +39,7 @@ public class PrestadorServicoService {
     private ImagemVeiculoService imagemVeiculoService;
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired ImagemUsuarioService imagemUsuarioService;
 
     public void cadastraUsuarioComoPrestadorServico(Principal principal, NovoPrestadorServico novoPrestadorServico, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) throws UsuarioNotFoundException, UsuarioAlreadyJoinAsPrestadorServico {
         log.info("Cadastrando novo prestador de servico: {}", principal.getName());
@@ -138,5 +141,27 @@ public class PrestadorServicoService {
                 .doubleValue();
 
         return doubleFormatado;
+    }
+
+    public PrestadorServico findByNomeUsuario(String nomeUsuario) throws UsuarioNotFoundException{
+        Optional<PrestadorServico> prestadorServico = prestadorServicoRepository.findByNomeUsuario(nomeUsuario);
+
+        if(prestadorServico.isEmpty()) throw new UsuarioNotFoundException();
+        return prestadorServico.get();
+    }
+
+    public VeiculoDTO getVeiculoInfo(String nomeUsuario) throws UsuarioNotFoundException, VeiculoNotFoundException {
+        PrestadorServico prestadorServico = findByNomeUsuario(nomeUsuario);
+        Veiculo veiculo = veiculoService.findVeiculoById(prestadorServico.getVeiculo().getId());
+
+        return new VeiculoDTO(veiculo.getLargura(), veiculo.getAltura(), veiculo.getComprimento(),
+                veiculo.getFoto(), veiculo.getId());
+    }
+
+    public void getFoto(HttpServletResponse response, String prestadoServicoNomeUsuario) throws UsuarioNotFoundException, IOException {
+        var usuario = usuarioService.findUsuarioByNomeUsuario(prestadoServicoNomeUsuario);
+        var imageInputStream = imagemUsuarioService.findImageAsInputStream(usuario.getFoto());
+        imageInputStream.transferTo(response.getOutputStream());
+        response.flushBuffer();
     }
 }
