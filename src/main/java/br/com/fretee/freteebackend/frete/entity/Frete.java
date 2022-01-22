@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -25,14 +26,13 @@ public class Frete {
     private float preco;
     private String descricaoCarga;
     private Boolean precisaAjudade;
+    @Enumerated(EnumType.STRING)
     private StatusFrete status;
+    private LocalDateTime notificacaoEnviadaEm;
 
     @OneToOne
     private Usuario contratante;
 
     @OneToOne
     private Usuario prestadorServico;
-
-    @OneToMany
-    private List<SolicitacaoServico> solicitacoesServicos;
 }

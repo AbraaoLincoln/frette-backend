@@ -1,5 +1,10 @@
 package br.com.fretee.freteebackend.frete.enums;
 
 public enum StatusFrete {
-    AGENDADO, CANCELADO, FINALIZADO, ESPERANDO_PROCESSO_SOLICITAO
+    SOLICITANDO,
+    SOLICITACAO_RECUSADA,
+    PRECO_INFORMADO,
+    AGENDADO,
+    CANCELADO,
+    FINALIZADO
 }

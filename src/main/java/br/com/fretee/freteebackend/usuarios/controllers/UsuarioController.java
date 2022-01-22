@@ -70,31 +70,15 @@ public class UsuarioController {
         }
     }
 
-//    @PostMapping("/{userId}/foto")
-//    public ResponseEntity uploadFotoUsuario(HttpServletResponse response, @RequestParam MultipartFile foto, @PathVariable int userId) {
-//        imagemService.saveImage(foto);
-//        try{
-//            var usuario = usuarioService.findUsuarioById(userId);
-//            usuario.setFoto(imagemService.saveImage(foto));
-//            usuarioService.saveUsurio(usuario);
-//        }catch (UsuarioNotFindException e) {
-//            response.setStatus(HttpStatus.BAD_REQUEST.value());
-//        }
-//
-//        return new ResponseEntity(null);
-//    }
-//
-//    @PatchMapping("/{userId}/foto")
-//    public ResponseEntity atualizarFotoUsuario(HttpServletResponse response, @RequestParam MultipartFile foto, @PathVariable int userId) {
-//        try{
-//            var usuario = usuarioService.findUsuarioById(userId);
-//            var fotoAtualId = usuario.getFoto();
-//            usuario.setFoto(imagemService.saveImage(foto));
-//            imagemService.deleteImagem(fotoAtualId);
-//        }catch (UsuarioNotFindException e) {
-//            response.setStatus(HttpStatus.BAD_REQUEST.value());
-//        }
-//
-//        return new ResponseEntity(null);
-//    }
+    @PutMapping("/firebase/token")
+    public ResponseEntity atualizarFirebaseToken(Principal principal, @RequestParam String token) {
+        try {
+            System.out.println(token);
+            usuarioService.atualizarFirebaseToken(principal.getName(), token);
+            return ResponseEntity.ok().build();
+        } catch (UsuarioNotFoundException e) {
+            log.error("Usuario {} nao encontrado", principal.getName());
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

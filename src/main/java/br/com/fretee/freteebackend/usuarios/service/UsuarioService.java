@@ -91,6 +91,11 @@ public class UsuarioService implements UserDetailsService {
         return usuarioDTO;
     }
 
+    public void atualizarFirebaseToken(String nomeUsuario, String token) throws UsuarioNotFoundException {
+        Usuario usuario = findUsuarioByNomeUsuario(nomeUsuario);
+        usuario.setFirebaseToken(token);
+        usuarioRepository.save(usuario);
+    }
 
     //============================= Metodo usado pelo spring security ==============================
     @Override

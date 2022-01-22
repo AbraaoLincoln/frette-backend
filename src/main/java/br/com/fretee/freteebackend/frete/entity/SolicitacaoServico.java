@@ -7,9 +7,9 @@ import lombok.Data;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(schema = "frete", name = "solicitacao_servico")
-@Data
+//@Entity
+//@Table(schema = "frete", name = "solicitacao_servico")
+//@Data
 public class SolicitacaoServico {
     @Id
     private long id;

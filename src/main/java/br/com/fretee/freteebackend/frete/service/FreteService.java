@@ -5,6 +5,8 @@ import br.com.fretee.freteebackend.frete.api.FreteApi;
 import br.com.fretee.freteebackend.frete.dto.FreteDTO;
 import br.com.fretee.freteebackend.frete.dto.SolicitacaoServicoDTO;
 import br.com.fretee.freteebackend.frete.entity.Frete;
+import br.com.fretee.freteebackend.frete.enums.StatusFrete;
+import br.com.fretee.freteebackend.frete.exceptions.InvalidFirebaseToken;
 import br.com.fretee.freteebackend.frete.exceptions.SolicitacaoNotValidException;
 import br.com.fretee.freteebackend.frete.exceptions.TimeBetweenSolicitacoesNotValidException;
 import br.com.fretee.freteebackend.frete.repository.FreteRepository;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,22 +28,25 @@ public class FreteService {
     @Autowired
     private FreteRepository freteRepository;
     @Autowired
-    private FirebaseMessagingService firebaseMessagingService;
+    private NotificacaoService notificacaoService;
 
-    public void solicitarServico(Principal principal, SolicitacaoServicoDTO solicitacaoServicoDTO, String firebaseToken) throws TimeBetweenSolicitacoesNotValidException, SolicitacaoNotValidException, UsuarioNotFoundException {
+    public void solicitarServico(Principal principal, SolicitacaoServicoDTO solicitacaoServicoDTO) throws TimeBetweenSolicitacoesNotValidException, SolicitacaoNotValidException, UsuarioNotFoundException, InvalidFirebaseToken {
 
         verificarTempoEntreSolicitacoes(solicitacaoServicoDTO);
         validarSolicitacaoServico(solicitacaoServicoDTO);
 
-        Frete frete = buildFromSolicitacaoServicoDTO(solicitacaoServicoDTO);
+        Frete frete = buildFreteFromSolicitacaoServicoDTO(solicitacaoServicoDTO);
         Usuario contratante = usuarioService.findUsuarioByNomeUsuario(principal.getName());
         Usuario prestadorServico = usuarioService.findUsuarioByNomeUsuario(solicitacaoServicoDTO.getPrestadorServicoNomeUsuario());
         frete.setContratante(contratante);
         frete.setPrestadorServico(prestadorServico);
+        frete.setStatus(StatusFrete.SOLICITANDO);
+        frete = freteRepository.save(frete);
 
+        //notificacaoService.pushNotification("Solicitação de Serviço", "Verifique suas notificações", prestadorServico.getFirebaseToken());
+
+        frete.setNotificacaoEnviadaEm(LocalDateTime.now());
         freteRepository.save(frete);
-        //TODO: salvar o notificacao
-        firebaseMessagingService.sendNotification("Solicitação de Serviço", "Verifique suas notificações", firebaseToken);
     }
 
     private void verificarTempoEntreSolicitacoes(SolicitacaoServicoDTO solicitacaoServicoDTO) {
@@ -51,7 +57,7 @@ public class FreteService {
         //TODO: validar campos de solicitacaoServicoDTO
     }
 
-    private Frete buildFromSolicitacaoServicoDTO(SolicitacaoServicoDTO solicitacaoServicoDTO) {
+    private Frete buildFreteFromSolicitacaoServicoDTO(SolicitacaoServicoDTO solicitacaoServicoDTO) {
         var frete = new Frete();
 
         frete.setOrigem(solicitacaoServicoDTO.getOrigem());

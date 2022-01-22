@@ -23,8 +23,10 @@ public class Usuario {
     private float reputacao;
     private String telefone;
     private String foto;
+    @Column(unique = true)
     private String nomeUsuario;
     private String senha;
+    private String firebaseToken;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(schema = "usuario")
