@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,7 +32,7 @@ public class FreteService {
     private NotificacaoService notificacaoService;
 
     public void solicitarServico(Principal principal, SolicitacaoServicoDTO solicitacaoServicoDTO) throws TimeBetweenSolicitacoesNotValidException, SolicitacaoNotValidException, UsuarioNotFoundException, InvalidFirebaseToken {
-
+        //showSolicitacaoDeServico( solicitacaoServicoDTO);
         verificarTempoEntreSolicitacoes(solicitacaoServicoDTO);
         validarSolicitacaoServico(solicitacaoServicoDTO);
 
@@ -69,5 +70,45 @@ public class FreteService {
         frete.setPrecisaAjudade(solicitacaoServicoDTO.getPrecisaAjudade());
 
         return frete;
+    }
+
+    public List<SolicitacaoServicoDTO> getNotificacoes(String nomeUsuario) throws UsuarioNotFoundException {
+        int usuarioId = usuarioService.findIdUsuarioByNomeUsuario(nomeUsuario);
+        List<Frete> fretes = freteRepository.findByContratanteIdOrPrestadorServicoId(usuarioId);
+
+        List<SolicitacaoServicoDTO> notificacoes = new ArrayList<>();
+        for(Frete frete : fretes) {
+            SolicitacaoServicoDTO notificacao = buildSolicitacaoServicoDTOFromFrete(frete);
+            notificacao.setContratanteNomeUsuario(frete.getContratante().getNomeUsuario());
+            notificacao.setPrestadorServicoNomeUsuario(frete.getPrestadorServico().getNomeUsuario());
+            notificacao.setStatus(frete.getStatus().toString());
+            notificacoes.add(notificacao);
+        }
+
+        return notificacoes;
+    }
+
+    private SolicitacaoServicoDTO buildSolicitacaoServicoDTOFromFrete(Frete frete) {
+        var solicitacaoServicoDTO = new SolicitacaoServicoDTO();
+
+        solicitacaoServicoDTO.setOrigem(frete.getOrigem());
+        solicitacaoServicoDTO.setDestino(frete.getDestino());
+        solicitacaoServicoDTO.setData(frete.getData());
+        solicitacaoServicoDTO.setHora(frete.getHora());
+        solicitacaoServicoDTO.setPreco(frete.getPreco());
+        solicitacaoServicoDTO.setDescricaoCarga(frete.getDescricaoCarga());
+        solicitacaoServicoDTO.setPrecisaAjudade(frete.getPrecisaAjudade());
+
+        return solicitacaoServicoDTO;
+    }
+
+    private void showSolicitacaoDeServico(SolicitacaoServicoDTO solicitacaoServicoDTO) {
+        System.out.println(solicitacaoServicoDTO.getOrigem());
+        System.out.println(solicitacaoServicoDTO.getDestino());
+        System.out.println(solicitacaoServicoDTO.getDescricaoCarga());
+        System.out.println(solicitacaoServicoDTO.getData());
+        System.out.println(solicitacaoServicoDTO.getHora());
+        System.out.println(solicitacaoServicoDTO.getPreco());
+        System.out.println(solicitacaoServicoDTO.getPrestadorServicoNomeUsuario());
     }
 }

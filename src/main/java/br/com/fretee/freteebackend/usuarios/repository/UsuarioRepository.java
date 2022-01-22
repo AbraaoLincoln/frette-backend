@@ -16,4 +16,10 @@ public interface UsuarioRepository extends CrudRepository<Usuario, Integer> {
     @Transactional
     @Query(value = "UPDATE usuario SET firebase_token = :token WHERE id = :id", nativeQuery = true)
     public void atualizarFirebaseToken(int id, String token);
+
+    @Query(value = "SELECT id FROM usuario.usuario WHERE nome_usuario = :nomeUsuario", nativeQuery = true)
+    public Integer findIdUsuarioByNomeUsuario(String nomeUsuario);
+
+    @Query(value = "SELECT nome_usuario FROM usuario.usuario WHERE  id = :id", nativeQuery = true)
+    public String findNomeUsuarioByUsuarioId(int id);
 }

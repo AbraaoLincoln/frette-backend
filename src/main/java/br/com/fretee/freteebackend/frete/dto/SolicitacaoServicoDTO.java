@@ -9,6 +9,7 @@ import java.time.LocalTime;
 public class SolicitacaoServicoDTO {
     private int id;
     private String prestadorServicoNomeUsuario;
+    private String contratanteNomeUsuario;
     private String origem;
     private String destino;
     private LocalDate data;
@@ -16,4 +17,5 @@ public class SolicitacaoServicoDTO {
     private float preco;
     private String descricaoCarga;
     private Boolean precisaAjudade;
+    private String status;
 }

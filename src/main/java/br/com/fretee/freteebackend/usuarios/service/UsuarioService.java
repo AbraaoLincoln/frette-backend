@@ -97,6 +97,18 @@ public class UsuarioService implements UserDetailsService {
         usuarioRepository.save(usuario);
     }
 
+    public Integer findIdUsuarioByNomeUsuario(String nomeUsuario) throws UsuarioNotFoundException {
+        Integer id = usuarioRepository.findIdUsuarioByNomeUsuario(nomeUsuario);
+        if(id == null) throw new UsuarioNotFoundException();
+        return id;
+    }
+
+    public String findNomeUsuarioByUsuarioId(int id) throws UsuarioNotFoundException {
+        String nomeUsuario = usuarioRepository.findNomeUsuarioByUsuarioId(id);
+        if(nomeUsuario == null) throw new UsuarioNotFoundException();
+        return nomeUsuario;
+    }
+
     //============================= Metodo usado pelo spring security ==============================
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

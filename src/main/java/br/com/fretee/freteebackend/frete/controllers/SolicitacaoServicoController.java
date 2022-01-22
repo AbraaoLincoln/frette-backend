@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.Principal;
 
 @RestController
@@ -24,7 +26,7 @@ public class SolicitacaoServicoController {
     public ResponseEntity solicitarServico(Principal principal, @RequestBody SolicitacaoServicoDTO solicitacaoServicoDTO) {
         try{
             freteService.solicitarServico(principal, solicitacaoServicoDTO);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.created(new URI("/api/frete/solicita-servico/solicitar")).build();
         } catch (UsuarioNotFoundException e) {
             log.error("Usuario {} ou {} nao encontrado", principal.getName(), solicitacaoServicoDTO.getPrestadorServicoNomeUsuario());
             return ResponseEntity.badRequest().build();
@@ -36,6 +38,9 @@ public class SolicitacaoServicoController {
             return ResponseEntity.badRequest().build();
         } catch (InvalidFirebaseToken e) {
             log.error("firebase token invalido");
+            return ResponseEntity.internalServerError().build();
+        } catch (URISyntaxException e) {
+            log.error("URISyntaxException");
             return ResponseEntity.internalServerError().build();
         }
     }
