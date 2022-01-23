@@ -19,6 +19,7 @@ public class Frete {
     private int id;
     private boolean ativo = true;
     private LocalDate dataCriacao = LocalDate.now();
+    private LocalDateTime dataAtualizacao = LocalDateTime.now();
     private String origem;
     private String destino;
     private LocalDate data;

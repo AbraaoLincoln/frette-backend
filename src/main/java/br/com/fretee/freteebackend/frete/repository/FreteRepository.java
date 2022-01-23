@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface FreteRepository extends JpaRepository<Frete, Integer> {
-    @Query(value = "SELECT * FROM frete.fretes WHERE contratante_id = :id or prestador_servico_id = :id", nativeQuery = true)
+    @Query(value = "SELECT * FROM frete.fretes WHERE contratante_id = :id or prestador_servico_id = :id ORDER BY data_atualizacao DESC", nativeQuery = true)
     public List<Frete> findByContratanteIdOrPrestadorServicoId(int id);
 }
