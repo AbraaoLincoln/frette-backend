@@ -94,7 +94,7 @@ public class PrestadorServicoService {
             Iterable<PrestadorServico> prestadorServicos = prestadorServicoRepository.findAll();
 
             prestadorServicos.forEach(prestadorServico -> {
-                if(usuario.getId() != prestadorServico.getId()) {
+                if(usuario.getId() != prestadorServico.getUsuario().getId()) {
                     PrestadorServicoDTO prestadorServicoDTO = new PrestadorServicoDTO(prestadorServico.getUsuario(), prestadorServico);
                     double distancia = calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServicoDTO.getLatitude(), prestadorServicoDTO.getLongitude());
                     prestadorServicoDTO.setDistancia(formatarDouble(distancia, 1));

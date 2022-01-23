@@ -44,7 +44,7 @@ public class FreteService {
         frete.setStatus(StatusFrete.SOLICITANDO);
         frete = freteRepository.save(frete);
 
-        //notificacaoService.pushNotification("Solicitação de Serviço", "Verifique suas notificações", prestadorServico.getFirebaseToken());
+        notificacaoService.pushNotification("Solicitação de Serviço", "Verifique suas notificações", prestadorServico.getFirebaseToken());
 
         frete.setNotificacaoEnviadaEm(LocalDateTime.now());
         freteRepository.save(frete);
