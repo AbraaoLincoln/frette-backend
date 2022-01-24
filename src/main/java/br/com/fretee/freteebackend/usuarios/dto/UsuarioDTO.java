@@ -2,11 +2,13 @@ package br.com.fretee.freteebackend.usuarios.dto;
 
 import br.com.fretee.freteebackend.usuarios.entity.Usuario;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Data
+@NoArgsConstructor
 public class UsuarioDTO {
     private String dataCriacao;
     private String nomeCompleto;

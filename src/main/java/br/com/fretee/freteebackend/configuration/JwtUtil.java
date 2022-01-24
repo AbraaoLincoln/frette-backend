@@ -32,7 +32,7 @@ public class JwtUtil {
     public String generateAccessToken(String nomeUsuario, List<String> permissoes) {
         return JWT.create()
                 .withSubject(nomeUsuario)
-                .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
                 .withIssuer(issuer)
                 .withClaim("permissoes", permissoes)
                 .sign(algorithm);
@@ -41,7 +41,7 @@ public class JwtUtil {
     public String generateRefreshToken(String nomeUsuario) {
         return JWT.create()
                 .withSubject(nomeUsuario)
-                .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 120 * 60 * 1000))
                 .withIssuer(issuer)
                 .sign(algorithm);
     }

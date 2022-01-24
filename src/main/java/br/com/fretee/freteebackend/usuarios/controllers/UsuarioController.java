@@ -3,6 +3,7 @@ package br.com.fretee.freteebackend.usuarios.controllers;
 import br.com.fretee.freteebackend.exceptions.NomeUsuarioAlreadyInUseException;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.usuarios.dto.UsuarioDTO;
+import br.com.fretee.freteebackend.usuarios.entity.Localizacao;
 import br.com.fretee.freteebackend.usuarios.entity.NovoUsuario;
 import br.com.fretee.freteebackend.usuarios.service.ImagemUsuarioService;
 import br.com.fretee.freteebackend.usuarios.service.UsuarioService;
@@ -51,6 +52,15 @@ public class UsuarioController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+//    @GetMapping("/{nomeUsuario}/info")
+//    public ResponseEntity<UsuarioDTO> getUsuarioInfoParaNotificacao(@PathVariable String nomeUsuario, @RequestBody Localizacao localizacao) {
+//        try{
+//            return ResponseEntity.ok().body(usuarioService.getUsuarioInfoParaNotificacao(nomeUsuario, localizacao));
+//        }catch (UsuarioNotFoundException e) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//    }
 
     @GetMapping("/foto")
     public ResponseEntity getFotoUsurio(HttpServletResponse response, Principal principal) {

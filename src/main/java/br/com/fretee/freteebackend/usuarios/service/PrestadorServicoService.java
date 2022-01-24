@@ -11,6 +11,7 @@ import br.com.fretee.freteebackend.usuarios.entity.Localizacao;
 import br.com.fretee.freteebackend.usuarios.entity.PrestadorServico;
 import br.com.fretee.freteebackend.usuarios.entity.Usuario;
 import br.com.fretee.freteebackend.usuarios.entity.Veiculo;
+import br.com.fretee.freteebackend.usuarios.helpers.DistanceCalculator;
 import br.com.fretee.freteebackend.usuarios.repository.PrestadorServicoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,10 @@ public class PrestadorServicoService {
     private ImagemVeiculoService imagemVeiculoService;
     @Autowired
     private UsuarioService usuarioService;
-    @Autowired ImagemUsuarioService imagemUsuarioService;
+    @Autowired
+    private ImagemUsuarioService imagemUsuarioService;
+    @Autowired
+    private DistanceCalculator distanceCalculator;
 
     public void cadastraUsuarioComoPrestadorServico(Principal principal, NovoPrestadorServico novoPrestadorServico, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) throws UsuarioNotFoundException, UsuarioAlreadyJoinAsPrestadorServico {
         log.info("Cadastrando novo prestador de servico: {}", principal.getName());
@@ -96,8 +100,8 @@ public class PrestadorServicoService {
             prestadorServicos.forEach(prestadorServico -> {
                 if(usuario.getId() != prestadorServico.getUsuario().getId()) {
                     PrestadorServicoDTO prestadorServicoDTO = new PrestadorServicoDTO(prestadorServico.getUsuario(), prestadorServico);
-                    double distancia = calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServicoDTO.getLatitude(), prestadorServicoDTO.getLongitude());
-                    prestadorServicoDTO.setDistancia(formatarDouble(distancia, 1));
+                    double distancia = distanceCalculator.calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServicoDTO.getLatitude(), prestadorServicoDTO.getLongitude());
+                    prestadorServicoDTO.setDistancia(distanceCalculator.formatarDouble(distancia, 1));
                     prestadoresDeServicoDTO.add(prestadorServicoDTO);
                 }
             });
@@ -117,30 +121,6 @@ public class PrestadorServicoService {
         }
 
         return prestadoresDeServicoDTO;
-    }
-
-    private double calculateDistanceInKilometer(double userLat, double userLng,
-                                            double venueLat, double venueLng) {
-        final  double AVERAGE_RADIUS_OF_EARTH_KM = 6371;
-        double latDistance = Math.toRadians(userLat - venueLat);
-        double lngDistance = Math.toRadians(userLng - venueLng);
-
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(userLat)) * Math.cos(Math.toRadians(venueLat))
-                * Math.sin(lngDistance / 2) * Math.sin(lngDistance / 2);
-
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        //return (int) (Math.round(AVERAGE_RADIUS_OF_EARTH_KM * c));
-        return AVERAGE_RADIUS_OF_EARTH_KM * c;
-    }
-
-    private Double formatarDouble(double valor, int precisao) {
-        Double doubleFormatado = BigDecimal.valueOf(valor)
-                .setScale(precisao, RoundingMode.HALF_UP)
-                .doubleValue();
-
-        return doubleFormatado;
     }
 
     public PrestadorServico findByNomeUsuario(String nomeUsuario) throws UsuarioNotFoundException{

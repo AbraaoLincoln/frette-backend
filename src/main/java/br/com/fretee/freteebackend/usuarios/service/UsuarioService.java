@@ -5,7 +5,9 @@ import br.com.fretee.freteebackend.exceptions.NomeUsuarioAlreadyInUseException;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.api.FreteApi;
 import br.com.fretee.freteebackend.usuarios.dto.UsuarioDTO;
+import br.com.fretee.freteebackend.usuarios.entity.Localizacao;
 import br.com.fretee.freteebackend.usuarios.entity.Usuario;
+import br.com.fretee.freteebackend.usuarios.helpers.DistanceCalculator;
 import br.com.fretee.freteebackend.usuarios.repository.UsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,8 @@ public class UsuarioService implements UserDetailsService {
     private PermissaoService permissaoService;
     @Autowired
     private FreteApi freteApi;
+    @Autowired
+    private DistanceCalculator distanceCalculator;
 
     public Usuario addUsuario(Usuario usuario, MultipartFile foto) throws NomeUsuarioAlreadyInUseException {
         //TODO: validar usuario
@@ -90,6 +94,18 @@ public class UsuarioService implements UserDetailsService {
         usuarioDTO.setFretesRealizados(freteApi.getNumeroDeFretesRealizados(usuario.getId()));
         return usuarioDTO;
     }
+
+//    public UsuarioDTO getUsuarioInfoParaNotificacao(String nomeUsuario, Localizacao localizacao) throws UsuarioNotFoundException {
+//        Usuario usuario = findUsuarioByNomeUsuario(nomeUsuario);
+//        UsuarioDTO usuarioDTO = new UsuarioDTO();
+//        usuarioDTO.setNomeUsuario(usuario.getNomeUsuario());
+//        usuarioDTO.setReputacao(usuario.getReputacao());
+//
+//        double distancia = distanceCalculator.calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServicoDTO.getLatitude(), prestadorServicoDTO.getLongitude());
+//        usuarioDTO.setDistancia(distanceCalculator.formatarDouble(distancia, 1));
+//
+//        return usuarioDTO;
+//    }
 
     public void atualizarFirebaseToken(String nomeUsuario, String token) throws UsuarioNotFoundException {
         Usuario usuario = findUsuarioByNomeUsuario(nomeUsuario);

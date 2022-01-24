@@ -3,9 +3,11 @@ package br.com.fretee.freteebackend.frete.service;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.api.FreteApi;
 import br.com.fretee.freteebackend.frete.dto.FreteDTO;
+import br.com.fretee.freteebackend.frete.dto.FreteNotificacao;
 import br.com.fretee.freteebackend.frete.dto.SolicitacaoServicoDTO;
 import br.com.fretee.freteebackend.frete.entity.Frete;
 import br.com.fretee.freteebackend.frete.enums.StatusFrete;
+import br.com.fretee.freteebackend.frete.exceptions.FreteNotFoundException;
 import br.com.fretee.freteebackend.frete.exceptions.InvalidFirebaseToken;
 import br.com.fretee.freteebackend.frete.exceptions.SolicitacaoNotValidException;
 import br.com.fretee.freteebackend.frete.exceptions.TimeBetweenSolicitacoesNotValidException;
@@ -20,6 +22,7 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -72,20 +75,50 @@ public class FreteService {
         return frete;
     }
 
-    public List<SolicitacaoServicoDTO> getNotificacoes(String nomeUsuario) throws UsuarioNotFoundException {
-        int usuarioId = usuarioService.findIdUsuarioByNomeUsuario(nomeUsuario);
-        List<Frete> fretes = freteRepository.findByContratanteIdOrPrestadorServicoId(usuarioId);
+//    public List<SolicitacaoServicoDTO> getNotificacoes(String nomeUsuario) throws UsuarioNotFoundException {
+//        int usuarioId = usuarioService.findIdUsuarioByNomeUsuario(nomeUsuario);
+//        List<Frete> fretes = freteRepository.findByContratanteIdOrPrestadorServicoId(usuarioId);
+//
+//        List<SolicitacaoServicoDTO> notificacoes = new ArrayList<>();
+//        for(Frete frete : fretes) {
+//            SolicitacaoServicoDTO notificacao = buildSolicitacaoServicoDTOFromFrete(frete);
+//            notificacao.setContratanteNomeUsuario(frete.getContratante().getNomeUsuario());
+//            notificacao.setPrestadorServicoNomeUsuario(frete.getPrestadorServico().getNomeUsuario());
+//            notificacao.setStatus(frete.getStatus().toString());
+//            notificacoes.add(notificacao);
+//        }
+//
+//        return notificacoes;
+//    }
 
-        List<SolicitacaoServicoDTO> notificacoes = new ArrayList<>();
-        for(Frete frete : fretes) {
-            SolicitacaoServicoDTO notificacao = buildSolicitacaoServicoDTOFromFrete(frete);
-            notificacao.setContratanteNomeUsuario(frete.getContratante().getNomeUsuario());
-            notificacao.setPrestadorServicoNomeUsuario(frete.getPrestadorServico().getNomeUsuario());
+    public List<FreteNotificacao> getNotificacoes(String nomeUsuario) throws UsuarioNotFoundException, FreteNotFoundException {
+        int usuarioId = usuarioService.findIdUsuarioByNomeUsuario(nomeUsuario);
+        Optional<List<Frete>> fretesOptional = freteRepository.findFreteStatusAndIdByContratanteIdOrPrestadorServicoId(usuarioId);
+        if(fretesOptional.isEmpty()) throw new FreteNotFoundException();
+        List<Frete> fretes = fretesOptional.get();
+
+        List<FreteNotificacao> notificacoes = new ArrayList<>();
+        fretes.forEach(frete -> {
+            FreteNotificacao notificacao = new FreteNotificacao();
+            notificacao.setId(frete.getId());
             notificacao.setStatus(frete.getStatus().toString());
             notificacoes.add(notificacao);
-        }
+        });
 
         return notificacoes;
+    }
+
+    public SolicitacaoServicoDTO getNotificacaoInfo(int id) throws FreteNotFoundException {
+        Optional<Frete> freteOptional = freteRepository.findById(id);
+        if(freteOptional.isEmpty()) throw new FreteNotFoundException();
+        Frete frete = freteOptional.get();
+
+        SolicitacaoServicoDTO notificacao = buildSolicitacaoServicoDTOFromFrete(frete);
+        notificacao.setContratanteNomeUsuario(frete.getContratante().getNomeUsuario());
+        notificacao.setPrestadorServicoNomeUsuario(frete.getPrestadorServico().getNomeUsuario());
+        notificacao.setStatus(frete.getStatus().toString());
+
+        return notificacao;
     }
 
     private SolicitacaoServicoDTO buildSolicitacaoServicoDTOFromFrete(Frete frete) {
