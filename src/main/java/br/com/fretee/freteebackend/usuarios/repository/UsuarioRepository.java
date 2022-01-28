@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface UsuarioRepository extends CrudRepository<Usuario, Integer> {
     public Optional<Usuario> findByNomeUsuario(String nomeUsuario);
 
-    @Query(value = "SELECT EXISTS(SELECT 1 FROM usuario.usuario WHERE nome_usuario = ?1);", nativeQuery = true)
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM usuario.usuario WHERE nome_usuario = ?1)", nativeQuery = true)
     public boolean verificarSeNomeUsuarioJaEstaEmUso(String nomeUsuario);
 
     @Transactional

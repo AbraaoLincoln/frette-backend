@@ -14,4 +14,7 @@ public interface FreteRepository extends JpaRepository<Frete, Integer> {
 
     @Query(value = "SELECT * FROM frete.fretes WHERE contratante_id = :id or prestador_servico_id = :id ORDER BY data_atualizacao DESC", nativeQuery = true)
     public Optional<List<Frete>> findFreteStatusAndIdByContratanteIdOrPrestadorServicoId(int id);
+
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM frete.fretes inner join usuario.usuario on fretes.contratante_id = usuario.id WHERE usuario.nome_usuario = :nomeUsuario and fretes.id = :freteId)", nativeQuery = true)
+    public boolean existsFreteByIdQueUsuarioEContratante(String nomeUsuario, int freteId);
 }

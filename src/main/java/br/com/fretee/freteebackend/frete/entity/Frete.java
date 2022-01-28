@@ -31,9 +31,9 @@ public class Frete {
     private StatusFrete status;
     private LocalDateTime notificacaoEnviadaEm;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     private Usuario contratante;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     private Usuario prestadorServico;
 }

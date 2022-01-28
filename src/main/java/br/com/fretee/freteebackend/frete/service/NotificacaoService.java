@@ -11,7 +11,7 @@ public class NotificacaoService {
 
     public String pushNotification(String title, String content, String token) throws InvalidFirebaseToken {
         if(token != null) {
-            return firebaseMessagingService.sendNotification("Solicitação de Serviço", "Verifique suas notificações", token);
+            return firebaseMessagingService.sendNotification(title, content, token);
         }else {
             throw new InvalidFirebaseToken();
         }
