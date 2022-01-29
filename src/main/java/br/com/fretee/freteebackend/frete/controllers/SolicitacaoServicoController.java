@@ -151,4 +151,28 @@ public class SolicitacaoServicoController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PutMapping("/{freteId}/finalizar")
+    public ResponseEntity finalizarServico(Principal principal, @PathVariable int freteId) {
+
+        try{
+            freteService.finalizarServico(principal, freteId);
+            return ResponseEntity.ok().build();
+        } catch (FreteNotFoundException e) {
+            log.error("Frete de id ={} nao encontrado", freteId);
+            return ResponseEntity.badRequest().build();
+        } catch (InvalidFirebaseToken e) {
+            log.error("Firebase token invalido");
+            return ResponseEntity.internalServerError().build();
+        }  catch (CannotUpdateFreteStatusException e) {
+            log.error("O frete nao pode ter seu status atualizado", principal.getName(), freteId);
+            return ResponseEntity.badRequest().build();
+        } catch (OnlyContratanteCanDoThisActionException e) {
+            log.error("O usuario {} nao e contratante no frete de id = {}", principal.getName(), freteId);
+            return ResponseEntity.badRequest().build();
+        } catch (OnlyPrestadorServicoCanDoThisActionException e) {
+            log.error("O usuario {} nao e prestador de servico no frete de id = {}", principal.getName(), freteId);
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

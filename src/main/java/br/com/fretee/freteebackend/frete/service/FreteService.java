@@ -4,6 +4,9 @@ import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.dto.FreteNotificacao;
 import br.com.fretee.freteebackend.frete.dto.PrecoFreteDTO;
 import br.com.fretee.freteebackend.frete.dto.SolicitacaoServicoDTO;
+import br.com.fretee.freteebackend.frete.entity.FinalizaServicoComoContratanteStrategy;
+import br.com.fretee.freteebackend.frete.entity.FinalizaServicoComoPrestadorServicoStrategy;
+import br.com.fretee.freteebackend.frete.entity.FinalizarServicoStrategy;
 import br.com.fretee.freteebackend.frete.entity.Frete;
 import br.com.fretee.freteebackend.frete.enums.StatusFrete;
 import br.com.fretee.freteebackend.frete.exceptions.*;
@@ -86,6 +89,22 @@ public class FreteService {
             atualizarStatusFreteComoContratante(principal, freteId, StatusFrete.AGENDADO, StatusFrete.CANCELADO, notificacaoTitulo);
         }else {
             atualizarStatusFreteComoPrestadorServico(principal, freteId, StatusFrete.AGENDADO, StatusFrete.CANCELADO, notificacaoTitulo);
+        }
+    }
+
+    public void finalizarServico(Principal principal, int freteId) throws InvalidFirebaseToken, FreteNotFoundException, OnlyContratanteCanDoThisActionException, CannotUpdateFreteStatusException, OnlyPrestadorServicoCanDoThisActionException {
+        FinalizarServicoStrategy finalizarServicoStrategy = null;
+        Frete frete = findFreteById(freteId);
+        boolean usuarioLogadoEhContratante = principal.getName().equals(frete.getContratante().getNomeUsuario());
+        boolean usuarioLogadoEhPrestadorServico = principal.getName().equals(frete.getPrestadorServico().getNomeUsuario());
+
+        if(usuarioLogadoEhContratante) finalizarServicoStrategy = new FinalizaServicoComoContratanteStrategy(frete, freteRepository, notificacaoService);
+        else if(usuarioLogadoEhPrestadorServico) finalizarServicoStrategy = new FinalizaServicoComoPrestadorServicoStrategy(frete, freteRepository, notificacaoService);
+
+        if(finalizarServicoStrategy != null) {
+            finalizarServicoStrategy.atualizarFreteParaFinalizado();
+        }else {
+            throw new CannotUpdateFreteStatusException();
         }
     }
 
