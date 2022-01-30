@@ -11,8 +11,6 @@ public class PrestadorServicoDTO {
     private float reputacao;
     private String telefone;
     private String foto;
-    private double longitude;
-    private double latitude;
     private int veiculo;
     private Double distancia;
 
@@ -22,8 +20,6 @@ public class PrestadorServicoDTO {
         this.reputacao = prestadorServico.getReputacao();
         this.telefone = usuario.getTelefone();
         this.foto = usuario.getFoto();
-        this.longitude = prestadorServico.getLongitude();
-        this.latitude = prestadorServico.getLatitude();
         this.veiculo = prestadorServico.getVeiculo().getId();
     }
 

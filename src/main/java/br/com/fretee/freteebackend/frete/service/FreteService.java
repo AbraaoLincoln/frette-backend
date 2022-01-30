@@ -205,6 +205,7 @@ public class FreteService {
     private SolicitacaoServicoDTO buildSolicitacaoServicoDTOFromFrete(Frete frete) {
         var solicitacaoServicoDTO = new SolicitacaoServicoDTO();
 
+        solicitacaoServicoDTO.setId(frete.getId());
         solicitacaoServicoDTO.setOrigem(frete.getOrigem());
         solicitacaoServicoDTO.setDestino(frete.getDestino());
         solicitacaoServicoDTO.setData(frete.getData());

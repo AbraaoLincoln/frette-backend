@@ -1,6 +1,7 @@
 package br.com.fretee.freteebackend.usuarios.controllers;
 
 import br.com.fretee.freteebackend.exceptions.NomeUsuarioAlreadyInUseException;
+import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.usuarios.dto.UsuarioDTO;
 import br.com.fretee.freteebackend.usuarios.entity.Localizacao;
@@ -53,14 +54,14 @@ public class UsuarioController {
         }
     }
 
-//    @GetMapping("/{nomeUsuario}/info")
-//    public ResponseEntity<UsuarioDTO> getUsuarioInfoParaNotificacao(@PathVariable String nomeUsuario, @RequestBody Localizacao localizacao) {
-//        try{
-//            return ResponseEntity.ok().body(usuarioService.getUsuarioInfoParaNotificacao(nomeUsuario, localizacao));
-//        }catch (UsuarioNotFoundException e) {
-//            return ResponseEntity.badRequest().build();
-//        }
-//    }
+    @GetMapping("/{nomeUsuario}/info")
+    public ResponseEntity<UsuarioDTO> getUsuarioInfoParaNotificacao(Principal principal, @PathVariable String nomeUsuario ) {
+        try{
+            return ResponseEntity.ok().body(usuarioService.getUsuarioInfo(principal, nomeUsuario));
+        }catch (UsuarioNotFoundException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     @GetMapping("/foto")
     public ResponseEntity getFotoUsurio(HttpServletResponse response, Principal principal) {
@@ -88,6 +89,20 @@ public class UsuarioController {
             return ResponseEntity.ok().build();
         } catch (UsuarioNotFoundException e) {
             log.error("Usuario {} nao encontrado", principal.getName());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/localizacao")
+    public ResponseEntity atualizarLocalizacao(Principal principal, @RequestBody Localizacao localizacao) {
+        try{
+            usuarioService.atualizarLocalizacao(principal, localizacao);
+            return ResponseEntity.ok().build();
+        } catch (PrestadorServicoNotFoundException e) {
+            log.error("Prestador de servico não encontrado: {}", principal.getName());
+            return ResponseEntity.badRequest().build();
+        } catch (UsuarioNotFoundException e) {
+            log.error("Usuario não encontrado: {}", principal.getName());
             return ResponseEntity.badRequest().build();
         }
     }

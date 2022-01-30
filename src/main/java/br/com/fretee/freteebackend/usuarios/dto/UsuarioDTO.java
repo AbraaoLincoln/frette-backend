@@ -17,8 +17,19 @@ public class UsuarioDTO {
     private String foto;
     private String nomeUsuario;
     private int fretesRealizados;
+    private double distancia;
+    private InfoPrestadorServico prestadorServico;
 
     public UsuarioDTO(Usuario usuario) {
+        setUsuarioInfo(usuario);
+    }
+
+    public UsuarioDTO(Usuario usuario, InfoPrestadorServico infoPrestadorServico) {
+        setUsuarioInfo(usuario);
+        this.prestadorServico = infoPrestadorServico;
+    }
+
+    private void setUsuarioInfo(Usuario usuario) {
         this.dataCriacao = fomatarData(usuario.getDataCriacao());
         this.nomeCompleto = usuario.getNomeCompleto();
         this.nomeUsuario = usuario.getNomeUsuario();

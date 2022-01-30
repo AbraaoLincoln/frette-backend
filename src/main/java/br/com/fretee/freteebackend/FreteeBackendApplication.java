@@ -1,11 +1,9 @@
 package br.com.fretee.freteebackend;
 
 import br.com.fretee.freteebackend.configuration.JwtUtil;
-import br.com.fretee.freteebackend.usuarios.entity.Permissao;
-import br.com.fretee.freteebackend.usuarios.entity.PrestadorServico;
-import br.com.fretee.freteebackend.usuarios.entity.Usuario;
-import br.com.fretee.freteebackend.usuarios.entity.Veiculo;
+import br.com.fretee.freteebackend.usuarios.entity.*;
 import br.com.fretee.freteebackend.usuarios.enums.Permissoes;
+import br.com.fretee.freteebackend.usuarios.repository.LocalizacaoRepository;
 import br.com.fretee.freteebackend.usuarios.repository.PrestadorServicoRepository;
 import br.com.fretee.freteebackend.usuarios.repository.VeiculoRepository;
 import br.com.fretee.freteebackend.usuarios.service.*;
@@ -81,7 +79,7 @@ public class FreteeBackendApplication {
 	}
 
 	@Bean
-	CommandLineRunner run1(UsuarioService usuarioService, PrestadorServicoRepository prestadorServicoRepository, VeiculoRepository veiculoRepository) {
+	CommandLineRunner run1(UsuarioService usuarioService, PrestadorServicoRepository prestadorServicoRepository, VeiculoRepository veiculoRepository, LocalizacaoRepository localizacaoRepository) {
 		String[] args1 = {"Gustavo Luan Felipe Peixoto", "gustavo", "(84) 99658-8429","male_avatar", "veiculo1"};
 		String[] args2 = {"Thales Diego Severino Fogaca", "thales", "(84) 98206-3797", "male_avatar", "veiculo2"};
 		String[] args3 = {"Gabriel Juan Ricardo Cardoso", "gabriel", "(84) 99819-9982", "male_avatar", "veiculo3"};
@@ -101,11 +99,15 @@ public class FreteeBackendApplication {
 			//double lat = Math.random();
 			//double log = Math.random();
 			double lat = 37.5219983;
-			double log = -122.184;
+			double lon = -122.184;
 
 			int index = 0;
 
 			for(String[] usuarioInfo : usuarios) {
+				Localizacao loc = new Localizacao();
+				loc.setLongitude(lon);
+				loc.setLatitude(lat);
+				loc = localizacaoRepository.save(loc);
 
 				Usuario usuario = new Usuario();
 				usuario.setNomeCompleto(usuarioInfo[0]);
@@ -121,7 +123,9 @@ public class FreteeBackendApplication {
 				Permissao permissaoPrestadorServico = new Permissao();
 				permissaoUsuario.setId(Permissoes.PRESTADOR_SERVICO.getValue());
 				usuario.getPermissoes().add(permissaoPrestadorServico);
-				usuarioService.addUsuarioTeste(usuario);
+				usuario.setLocalizacao(loc);
+				usuario = usuarioService.addUsuarioTeste(usuario);
+
 
 				Veiculo veiculo = new Veiculo();
 				veiculo.setFoto(usuarioInfo[4]);
@@ -133,12 +137,10 @@ public class FreteeBackendApplication {
 				PrestadorServico prestadorServico = new PrestadorServico();
 				prestadorServico.setVeiculo(veiculo);
 				prestadorServico.setUsuario(usuario);
-				prestadorServico.setLongitude(log);
-				prestadorServico.setLatitude(lat);
 				prestadorServicoRepository.save(prestadorServico);
 
 				lat += Math.random();
-				log += Math.random();
+				lon += Math.random();
 				index++;
 			}
 

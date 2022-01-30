@@ -12,10 +12,8 @@ public class PrestadorServico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private float reputacao;
-    private double latitude;
-    private double longitude;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")
     private Usuario usuario;
 

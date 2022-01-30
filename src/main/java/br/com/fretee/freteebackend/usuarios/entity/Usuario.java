@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -31,4 +32,7 @@ public class Usuario {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(schema = "usuario")
     private List<Permissao> permissoes;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    private Localizacao localizacao;
 }

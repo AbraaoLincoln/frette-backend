@@ -66,20 +66,6 @@ public class PrestadorServicoController {
         }
     }
 
-    @PutMapping("/localizacao")
-    public ResponseEntity atualizarLocalizacao(Principal principal, Localizacao localizacao) {
-        try{
-            prestadorServicoService.atualizarLocalizacao(principal, localizacao);
-            return ResponseEntity.ok().build();
-        } catch (PrestadorServicoNotFoundException e) {
-            log.error("Prestador de servico não encontrado: {}", principal.getName());
-            return ResponseEntity.badRequest().build();
-        } catch (UsuarioNotFoundException e) {
-            log.error("Usuario não encontrado: {}", principal.getName());
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
     @GetMapping("/{nomeUsuario}/foto")
     public ResponseEntity getFotoUsurio(HttpServletResponse response, @PathVariable String nomeUsuario) {
         try{

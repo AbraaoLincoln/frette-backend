@@ -75,14 +75,6 @@ public class PrestadorServicoService {
         return prestadorServicoOptional.get();
     }
 
-    public void atualizarLocalizacao(Principal principal, Localizacao localizacao) throws UsuarioNotFoundException, PrestadorServicoNotFoundException {
-        Usuario usuario = usuarioService.findUsuarioByNomeUsuario(principal.getName());
-        PrestadorServico prestadorServico = findByUsuarioId(usuario.getId());
-        prestadorServico.setLatitude(localizacao.getLatitude());
-        prestadorServico.setLongitude(localizacao.getLongitude());
-        prestadorServicoRepository.save(prestadorServico);
-    }
-
     public void getFotoVeiculo(HttpServletResponse response, String prestadorServicoNome) throws UsuarioNotFoundException, IOException, PrestadorServicoNotFoundException {
         var usuario = usuarioService.findUsuarioByNomeUsuario(prestadorServicoNome);
         var prestadorServico = findByUsuarioId(usuario.getId());
@@ -100,7 +92,7 @@ public class PrestadorServicoService {
             prestadorServicos.forEach(prestadorServico -> {
                 if(usuario.getId() != prestadorServico.getUsuario().getId()) {
                     PrestadorServicoDTO prestadorServicoDTO = new PrestadorServicoDTO(prestadorServico.getUsuario(), prestadorServico);
-                    double distancia = distanceCalculator.calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServicoDTO.getLatitude(), prestadorServicoDTO.getLongitude());
+                    double distancia = distanceCalculator.calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServico.getUsuario().getLocalizacao().getLatitude(), prestadorServico.getUsuario().getLocalizacao().getLongitude());
                     prestadorServicoDTO.setDistancia(distanceCalculator.formatarDouble(distancia, 1));
                     prestadoresDeServicoDTO.add(prestadorServicoDTO);
                 }

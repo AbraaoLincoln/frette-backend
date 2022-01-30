@@ -2,12 +2,17 @@ package br.com.fretee.freteebackend.usuarios.service;
 
 import br.com.fretee.freteebackend.configuration.JwtUtil;
 import br.com.fretee.freteebackend.exceptions.NomeUsuarioAlreadyInUseException;
+import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
 import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.api.FreteApi;
+import br.com.fretee.freteebackend.usuarios.dto.InfoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.UsuarioDTO;
 import br.com.fretee.freteebackend.usuarios.entity.Localizacao;
+import br.com.fretee.freteebackend.usuarios.entity.PrestadorServico;
 import br.com.fretee.freteebackend.usuarios.entity.Usuario;
 import br.com.fretee.freteebackend.usuarios.helpers.DistanceCalculator;
+import br.com.fretee.freteebackend.usuarios.repository.LocalizacaoRepository;
+import br.com.fretee.freteebackend.usuarios.repository.PrestadorServicoRepository;
 import br.com.fretee.freteebackend.usuarios.repository.UsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +45,10 @@ public class UsuarioService implements UserDetailsService {
     private FreteApi freteApi;
     @Autowired
     private DistanceCalculator distanceCalculator;
+    @Autowired
+    private PrestadorServicoRepository prestadorServicoRepository;
+    @Autowired
+    private LocalizacaoRepository localizacaoRepository;
 
     public Usuario addUsuario(Usuario usuario, MultipartFile foto) throws NomeUsuarioAlreadyInUseException {
         //TODO: validar usuario
@@ -95,17 +104,27 @@ public class UsuarioService implements UserDetailsService {
         return usuarioDTO;
     }
 
-//    public UsuarioDTO getUsuarioInfoParaNotificacao(String nomeUsuario, Localizacao localizacao) throws UsuarioNotFoundException {
-//        Usuario usuario = findUsuarioByNomeUsuario(nomeUsuario);
-//        UsuarioDTO usuarioDTO = new UsuarioDTO();
-//        usuarioDTO.setNomeUsuario(usuario.getNomeUsuario());
-//        usuarioDTO.setReputacao(usuario.getReputacao());
-//
-//        double distancia = distanceCalculator.calculateDistanceInKilometer(localizacao.getLatitude(), localizacao.getLongitude(), prestadorServicoDTO.getLatitude(), prestadorServicoDTO.getLongitude());
-//        usuarioDTO.setDistancia(distanceCalculator.formatarDouble(distancia, 1));
-//
-//        return usuarioDTO;
-//    }
+    public UsuarioDTO getUsuarioInfo(Principal principal, String nomeUsuarioParaEncontrarInfo) throws UsuarioNotFoundException {
+        Usuario usuarioLogado = findUsuarioByNomeUsuario(principal.getName());
+        Usuario usuario = findUsuarioByNomeUsuario(nomeUsuarioParaEncontrarInfo);
+        UsuarioDTO usuarioDTO = new UsuarioDTO(usuario);
+
+        Localizacao localizacaoUsuarioEncontrado = usuario.getLocalizacao();
+        Localizacao localizacaoUsuarioLogado = usuario.getLocalizacao();
+        if(localizacaoUsuarioEncontrado != null && localizacaoUsuarioLogado != null) {
+            double distancia = distanceCalculator.calculateDistanceInKilometer(localizacaoUsuarioEncontrado.getLatitude(), localizacaoUsuarioEncontrado.getLongitude(), localizacaoUsuarioLogado.getLatitude(), localizacaoUsuarioLogado.getLongitude());
+            usuarioDTO.setDistancia(distanceCalculator.formatarDouble(distancia, 1));
+        }else {
+            usuarioDTO.setDistancia(0);
+        }
+
+        Optional<PrestadorServico> ps = prestadorServicoRepository.findByUsuarioId(usuario.getId());
+        if(ps.isPresent()) {
+            InfoPrestadorServico infops = new InfoPrestadorServico(ps.get());
+            usuarioDTO.setPrestadorServico(infops);
+        }
+        return usuarioDTO;
+    }
 
     public void atualizarFirebaseToken(String nomeUsuario, String token) throws UsuarioNotFoundException {
         Usuario usuario = findUsuarioByNomeUsuario(nomeUsuario);
@@ -123,6 +142,29 @@ public class UsuarioService implements UserDetailsService {
         String nomeUsuario = usuarioRepository.findNomeUsuarioByUsuarioId(id);
         if(nomeUsuario == null) throw new UsuarioNotFoundException();
         return nomeUsuario;
+    }
+
+    public Usuario save(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
+    public void atualizarLocalizacao(Principal principal, Localizacao localizacao) throws UsuarioNotFoundException, PrestadorServicoNotFoundException {
+        Usuario usuario = findUsuarioByNomeUsuario(principal.getName());
+        Localizacao usuarioLocalizacao = usuario.getLocalizacao();
+
+        if(usuarioLocalizacao != null) {
+            usuario.getLocalizacao().setLatitude(localizacao.getLatitude());
+            usuario.getLocalizacao().setLongitude(localizacao.getLongitude());
+            localizacaoRepository.save(usuario.getLocalizacao());
+        }else {
+            Localizacao loc = new Localizacao();
+            loc.setLongitude(localizacao.getLongitude());
+            loc.setLatitude(localizacao.getLatitude());
+            loc = localizacaoRepository.save(loc);
+            usuario.setLocalizacao(loc);
+            usuarioRepository.save(usuario);
+        }
+
     }
 
     //============================= Metodo usado pelo spring security ==============================
