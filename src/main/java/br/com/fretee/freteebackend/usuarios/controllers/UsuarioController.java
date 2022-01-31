@@ -1,8 +1,8 @@
 package br.com.fretee.freteebackend.usuarios.controllers;
 
-import br.com.fretee.freteebackend.exceptions.NomeUsuarioAlreadyInUseException;
-import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
-import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.NomeUsuarioAlreadyInUseException;
+import br.com.fretee.freteebackend.usuarios.exceptions.PrestadorServicoNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.usuarios.dto.UsuarioDTO;
 import br.com.fretee.freteebackend.usuarios.entity.Localizacao;
 import br.com.fretee.freteebackend.usuarios.entity.NovoUsuario;
@@ -30,80 +30,46 @@ public class UsuarioController {
     private ImagemUsuarioService imagemService;
 
     @PostMapping
-    public ResponseEntity addUsuario(NovoUsuario novoUsuario, @RequestParam MultipartFile foto) {
+    public ResponseEntity addUsuario(NovoUsuario novoUsuario, @RequestParam MultipartFile foto) throws NomeUsuarioAlreadyInUseException, URISyntaxException {
         log.info("criando usuario {}", novoUsuario.getNomeCompleto());
         log.info("image path: {}", imagemService.getPath());
 
-        try{
-            var usuario = novoUsuario.toUsuario();
+        var usuario = novoUsuario.toUsuario();
+        usuario = usuarioService.addUsuario(usuario, foto);
 
-            usuario = usuarioService.addUsuario(usuario, foto);
-
-            return ResponseEntity.created(new URI("/api/usuario")).build();
-        }catch (NomeUsuarioAlreadyInUseException | URISyntaxException ex) {
-            return ResponseEntity.badRequest().header("error", "nome usuario ja esta em uso").build();
-        }
+        return ResponseEntity.created(new URI("/api/usuario")).build();
     }
 
     @GetMapping("/info")
-    public ResponseEntity<UsuarioDTO> getUsuarioInfo(Principal principal) {
-        try{
-            return ResponseEntity.ok().body(usuarioService.getUsuarioInfo(principal));
-        }catch (UsuarioNotFoundException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<UsuarioDTO> getUsuarioInfo(Principal principal) throws UsuarioNotFoundException {
+        return ResponseEntity.ok().body(usuarioService.getUsuarioInfo(principal));
     }
 
     @GetMapping("/{nomeUsuario}/info")
-    public ResponseEntity<UsuarioDTO> getUsuarioInfoParaNotificacao(Principal principal, @PathVariable String nomeUsuario ) {
-        try{
-            return ResponseEntity.ok().body(usuarioService.getUsuarioInfo(principal, nomeUsuario));
-        }catch (UsuarioNotFoundException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<UsuarioDTO> getUsuarioInfoParaNotificacao(Principal principal, @PathVariable String nomeUsuario ) throws UsuarioNotFoundException {
+        return ResponseEntity.ok().body(usuarioService.getUsuarioInfo(principal, nomeUsuario));
     }
 
     @GetMapping("/foto")
-    public ResponseEntity getFotoUsurio(HttpServletResponse response, Principal principal) {
-        try{
-            var usuario = usuarioService.findUsuarioByNomeUsuario(principal.getName());
-            var imageInputStream = imagemService.findImageAsInputStream(usuario.getFoto());
-            imageInputStream.transferTo(response.getOutputStream());
-            response.flushBuffer();
+    public ResponseEntity getFotoUsurio(HttpServletResponse response, Principal principal) throws UsuarioNotFoundException, IOException {
+        var usuario = usuarioService.findUsuarioByNomeUsuario(principal.getName());
+        var imageInputStream = imagemService.findImageAsInputStream(usuario.getFoto());
+        imageInputStream.transferTo(response.getOutputStream());
+        response.flushBuffer();
 
-            return ResponseEntity.ok().build();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
-        } catch (UsuarioNotFoundException e) {
-            log.error("Usuario não encontrado: {}", principal.getName());
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/firebase/token")
-    public ResponseEntity atualizarFirebaseToken(Principal principal, @RequestParam String token) {
-        try {
-            System.out.println(token);
-            usuarioService.atualizarFirebaseToken(principal.getName(), token);
-            return ResponseEntity.ok().build();
-        } catch (UsuarioNotFoundException e) {
-            log.error("Usuario {} nao encontrado", principal.getName());
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity atualizarFirebaseToken(Principal principal, @RequestParam String token) throws UsuarioNotFoundException {
+        System.out.println(token);
+        usuarioService.atualizarFirebaseToken(principal.getName(), token);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/localizacao")
-    public ResponseEntity atualizarLocalizacao(Principal principal, @RequestBody Localizacao localizacao) {
-        try{
-            usuarioService.atualizarLocalizacao(principal, localizacao);
-            return ResponseEntity.ok().build();
-        } catch (PrestadorServicoNotFoundException e) {
-            log.error("Prestador de servico não encontrado: {}", principal.getName());
-            return ResponseEntity.badRequest().build();
-        } catch (UsuarioNotFoundException e) {
-            log.error("Usuario não encontrado: {}", principal.getName());
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity atualizarLocalizacao(Principal principal, @RequestBody Localizacao localizacao) throws PrestadorServicoNotFoundException, UsuarioNotFoundException {
+        usuarioService.atualizarLocalizacao(principal, localizacao);
+        return ResponseEntity.ok().build();
     }
 }

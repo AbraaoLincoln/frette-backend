@@ -1,6 +1,6 @@
 package br.com.fretee.freteebackend.frete.controllers;
 
-import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.dto.FreteNotificacao;
 import br.com.fretee.freteebackend.frete.dto.SolicitacaoServicoDTO;
 import br.com.fretee.freteebackend.frete.exceptions.FreteNotFoundException;
@@ -24,27 +24,14 @@ public class NotificacaoController {
     private FreteService freteService;
 
     @GetMapping
-    public ResponseEntity<List<FreteNotificacao>> getNotificacoesUsuario(Principal principal) {
-        try {
-            List<FreteNotificacao> notificacoes = freteService.getNotificacoes(principal.getName());
-            return ResponseEntity.ok().body(notificacoes);
-        } catch (UsuarioNotFoundException e) {
-            log.error("Usuario {} nao encontrado", principal.getName());
-            return ResponseEntity.badRequest().build();
-        } catch (FreteNotFoundException e) {
-            log.error("frete nao encontrado");
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<List<FreteNotificacao>> getNotificacoesUsuario(Principal principal) throws FreteNotFoundException, UsuarioNotFoundException {
+        List<FreteNotificacao> notificacoes = freteService.getNotificacoes(principal.getName());
+        return ResponseEntity.ok().body(notificacoes);
     }
 
     @GetMapping("/{id}/info")
-    public ResponseEntity<SolicitacaoServicoDTO> getNotificacao(@PathVariable int id) {
-        try {
-            SolicitacaoServicoDTO notificacoes = freteService.getNotificacaoInfo(id);
-            return ResponseEntity.ok().body(notificacoes);
-        } catch (FreteNotFoundException e) {
-            log.error("frete {} nao encontrado", id);
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<SolicitacaoServicoDTO> getNotificacao(@PathVariable int id) throws FreteNotFoundException {
+        SolicitacaoServicoDTO notificacoes = freteService.getNotificacaoInfo(id);
+        return ResponseEntity.ok().body(notificacoes);
     }
 }

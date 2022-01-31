@@ -1,6 +1,6 @@
 package br.com.fretee.freteebackend.frete.service;
 
-import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.dto.FreteNotificacao;
 import br.com.fretee.freteebackend.frete.dto.PrecoFreteDTO;
 import br.com.fretee.freteebackend.frete.dto.SolicitacaoServicoDTO;
@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 @Service
 @Slf4j
@@ -110,7 +109,7 @@ public class FreteService {
 
     private void atualizarStatusFreteComoContratante(Principal principal, int freteId, StatusFrete statusQueDeveEsta, StatusFrete novoStatus, String notificacaoTitulo) throws FreteNotFoundException, CannotUpdateFreteStatusException, OnlyContratanteCanDoThisActionException, InvalidFirebaseToken {
         Frete frete = findFreteById(freteId);
-        if(!principal.getName().equals(frete.getContratante().getNomeUsuario())) throw new OnlyContratanteCanDoThisActionException();
+        if(!principal.getName().equals(frete.getContratante().getNomeUsuario())) throw new OnlyContratanteCanDoThisActionException("O usuario " + principal.getName() + " nao e o contratante do frete");
         if(frete.getStatus() != statusQueDeveEsta) throw new CannotUpdateFreteStatusException();
         frete = atualizarStatusFrete(frete, novoStatus);
         //notificar(frete, notificacaoTitulo, frete.getPrestadorServico().getFirebaseToken());
@@ -118,7 +117,7 @@ public class FreteService {
 
     private void atualizarStatusFreteComoPrestadorServico(Principal principal, int freteId, StatusFrete statusQueDeveEsta, StatusFrete novoStatus, String notificacaoTitulo) throws FreteNotFoundException, CannotUpdateFreteStatusException, OnlyPrestadorServicoCanDoThisActionException, InvalidFirebaseToken {
         Frete frete = findFreteById(freteId);
-        if(!principal.getName().equals(frete.getPrestadorServico().getNomeUsuario())) throw new OnlyPrestadorServicoCanDoThisActionException();
+        if(!principal.getName().equals(frete.getPrestadorServico().getNomeUsuario())) throw new OnlyPrestadorServicoCanDoThisActionException("O usuario " + principal.getName() + "nao e o prestador de servico do frete");
         if(frete.getStatus() != statusQueDeveEsta) throw new CannotUpdateFreteStatusException();
         frete = atualizarStatusFrete(frete, novoStatus);
         //notificar(frete, notificacaoTitulo, frete.getContratante().getFirebaseToken());
@@ -142,7 +141,7 @@ public class FreteService {
         validarInformacaoPreco(precoDTO);
         Frete frete = findFreteById(precoDTO.getFreteId());
 
-        if(!principal.getName().equals(frete.getPrestadorServico().getNomeUsuario())) throw new OnlyPrestadorServicoCanDoThisActionException();
+        if(!principal.getName().equals(frete.getPrestadorServico().getNomeUsuario())) throw new OnlyPrestadorServicoCanDoThisActionException("O usuario " + principal.getName() + "nao e o prestador de servico do frete");
         if(frete.getStatus() != StatusFrete.SOLICITANDO) throw new CannotUpdateFreteStatusException();
 
         frete.setPreco(precoDTO.getPreco());
@@ -154,14 +153,14 @@ public class FreteService {
 
     public Frete findFreteById(int id) throws FreteNotFoundException{
         Optional<Frete> freteOptional = freteRepository.findById(id);
-        if(freteOptional.isEmpty()) throw new FreteNotFoundException();
+        if(freteOptional.isEmpty()) throw new FreteNotFoundException("O frete de id = " + id + "nao foi encontrado");
         return freteOptional.get();
     }
 
     public List<FreteNotificacao> getNotificacoes(String nomeUsuario) throws UsuarioNotFoundException, FreteNotFoundException {
         int usuarioId = usuarioService.findIdUsuarioByNomeUsuario(nomeUsuario);
         Optional<List<Frete>> fretesOptional = freteRepository.findFreteStatusAndIdByContratanteIdOrPrestadorServicoId(usuarioId);
-        if(fretesOptional.isEmpty()) throw new FreteNotFoundException();
+        if(fretesOptional.isEmpty()) throw new FreteNotFoundException("O fretes do usuario " + nomeUsuario + "nao foi encontrado");
         List<Frete> fretes = fretesOptional.get();
 
         List<FreteNotificacao> notificacoes = new ArrayList<>();
@@ -177,7 +176,7 @@ public class FreteService {
 
     public SolicitacaoServicoDTO getNotificacaoInfo(int id) throws FreteNotFoundException {
         Optional<Frete> freteOptional = freteRepository.findById(id);
-        if(freteOptional.isEmpty()) throw new FreteNotFoundException();
+        if(freteOptional.isEmpty()) throw new FreteNotFoundException("O frete de id = " + id + "nao foi encontrado");
         Frete frete = freteOptional.get();
 
         SolicitacaoServicoDTO notificacao = buildSolicitacaoServicoDTOFromFrete(frete);

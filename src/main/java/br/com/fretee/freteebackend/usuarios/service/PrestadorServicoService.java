@@ -1,9 +1,9 @@
 package br.com.fretee.freteebackend.usuarios.service;
 
-import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
-import br.com.fretee.freteebackend.exceptions.UsuarioAlreadyJoinAsPrestadorServico;
-import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
-import br.com.fretee.freteebackend.exceptions.VeiculoNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.PrestadorServicoNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioAlreadyJoinAsPrestadorServico;
+import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.VeiculoNotFoundException;
 import br.com.fretee.freteebackend.usuarios.dto.NovoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.PrestadorServicoDTO;
 import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
@@ -15,15 +15,11 @@ import br.com.fretee.freteebackend.usuarios.helpers.DistanceCalculator;
 import br.com.fretee.freteebackend.usuarios.repository.PrestadorServicoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +48,7 @@ public class PrestadorServicoService {
 
         try{
             findByUsuarioId(usuario.getId());
-            throw new UsuarioAlreadyJoinAsPrestadorServico();
+            throw new UsuarioAlreadyJoinAsPrestadorServico("Usuario " + principal.getName() + " já esta cadastrado(a) como prestador de servico");
         }catch(PrestadorServicoNotFoundException e) {
             var veiculoId = veiculoService.cadastrarVeiculo(veiculoDTO.toVeiculo(), fotoVeiculo);
             var prestadorServico = novoPrestadorServico.toPrestadorService(usuario);
@@ -71,7 +67,7 @@ public class PrestadorServicoService {
 
     public PrestadorServico findByUsuarioId(int usuarioId) throws PrestadorServicoNotFoundException {
         Optional<PrestadorServico> prestadorServicoOptional = prestadorServicoRepository.findByUsuarioId(usuarioId);
-        if(prestadorServicoOptional.isEmpty()) throw new PrestadorServicoNotFoundException();
+        if(prestadorServicoOptional.isEmpty()) throw new PrestadorServicoNotFoundException("Usuario de id = " + usuarioId + " nao encontrado");
         return prestadorServicoOptional.get();
     }
 
@@ -118,7 +114,7 @@ public class PrestadorServicoService {
     public PrestadorServico findByNomeUsuario(String nomeUsuario) throws UsuarioNotFoundException{
         Optional<PrestadorServico> prestadorServico = prestadorServicoRepository.findByNomeUsuario(nomeUsuario);
 
-        if(prestadorServico.isEmpty()) throw new UsuarioNotFoundException();
+        if(prestadorServico.isEmpty()) throw new UsuarioNotFoundException("O usuario " + nomeUsuario + "nao foi encontrado");
         return prestadorServico.get();
     }
 

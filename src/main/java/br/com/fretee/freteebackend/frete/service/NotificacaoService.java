@@ -13,7 +13,7 @@ public class NotificacaoService {
         if(token != null) {
             return firebaseMessagingService.sendNotification(title, content, token);
         }else {
-            throw new InvalidFirebaseToken();
+            throw new InvalidFirebaseToken("Firebase token is null");
         }
     }
 }

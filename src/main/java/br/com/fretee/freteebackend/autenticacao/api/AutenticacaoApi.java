@@ -1,6 +1,6 @@
 package br.com.fretee.freteebackend.autenticacao.api;
 
-import br.com.fretee.freteebackend.exceptions.CredenciasInvalidasException;
+import br.com.fretee.freteebackend.autenticacao.exceptions.CredenciasInvalidasException;
 
 public interface AutenticacaoApi {
 

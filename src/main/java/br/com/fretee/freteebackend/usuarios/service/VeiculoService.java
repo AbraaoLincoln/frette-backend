@@ -1,7 +1,6 @@
 package br.com.fretee.freteebackend.usuarios.service;
 
-import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
-import br.com.fretee.freteebackend.exceptions.VeiculoNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.VeiculoNotFoundException;
 import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
 import br.com.fretee.freteebackend.usuarios.entity.PrestadorServico;
 import br.com.fretee.freteebackend.usuarios.entity.Veiculo;
@@ -28,7 +27,7 @@ public class VeiculoService {
 
     public Veiculo findVeiculoById(int veiculoId) throws VeiculoNotFoundException {
         Optional<Veiculo> veiculoOptional = veiculoRepository.findById(veiculoId);
-        if(veiculoOptional.isEmpty()) throw new VeiculoNotFoundException();
+        if(veiculoOptional.isEmpty()) throw new VeiculoNotFoundException("Veiculo de id = " + veiculoId + "nao encontrado");
         return veiculoOptional.get();
     }
 

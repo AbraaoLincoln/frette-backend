@@ -1,9 +1,9 @@
 package br.com.fretee.freteebackend.usuarios.service;
 
 import br.com.fretee.freteebackend.configuration.JwtUtil;
-import br.com.fretee.freteebackend.exceptions.NomeUsuarioAlreadyInUseException;
-import br.com.fretee.freteebackend.exceptions.PrestadorServicoNotFoundException;
-import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.NomeUsuarioAlreadyInUseException;
+import br.com.fretee.freteebackend.usuarios.exceptions.PrestadorServicoNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.api.FreteApi;
 import br.com.fretee.freteebackend.usuarios.dto.InfoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.UsuarioDTO;
@@ -55,8 +55,7 @@ public class UsuarioService implements UserDetailsService {
 
         boolean nomeUsuarioJaEstaEmUso = usuarioRepository.verificarSeNomeUsuarioJaEstaEmUso(usuario.getNomeUsuario());
         if(nomeUsuarioJaEstaEmUso) {
-            log.error("Nome de usuario {} já está em uso", usuario.getNomeUsuario());
-            throw new NomeUsuarioAlreadyInUseException();
+            throw new NomeUsuarioAlreadyInUseException("Nome de usuario " + usuario.getNomeUsuario() + " já está em uso");
         }
 
         if(foto != null) usuario.setFoto(imagemService.saveImage(foto));
@@ -72,8 +71,7 @@ public class UsuarioService implements UserDetailsService {
 
         boolean nomeUsuarioJaEstaEmUso = usuarioRepository.verificarSeNomeUsuarioJaEstaEmUso(usuario.getNomeUsuario());
         if(nomeUsuarioJaEstaEmUso) {
-            log.error("Nome de usuario {} já está em uso", usuario.getNomeUsuario());
-            throw new NomeUsuarioAlreadyInUseException();
+            throw new NomeUsuarioAlreadyInUseException("Nome de usuario " + usuario.getNomeUsuario() + " já está em uso");
         }
 
         usuario.setSenha(bCryptPasswordEncoder.encode(usuario.getSenha()));
@@ -86,14 +84,14 @@ public class UsuarioService implements UserDetailsService {
     public Usuario findUsuarioById(int usuarioId) throws UsuarioNotFoundException {
         var usuario = usuarioRepository.findById(usuarioId);
 
-        if(usuario.isEmpty()) throw new UsuarioNotFoundException();
+        if(usuario.isEmpty()) throw new UsuarioNotFoundException("O usuario de id = " + usuarioId + "nao foi encontrado");
 
         return usuario.get();
     }
 
     public Usuario findUsuarioByNomeUsuario(String nomeUsuario) throws UsuarioNotFoundException {
         Optional<Usuario> usuarioOptional = usuarioRepository.findByNomeUsuario(nomeUsuario);
-        if(usuarioOptional.isEmpty()) throw new UsuarioNotFoundException();
+        if(usuarioOptional.isEmpty()) throw new UsuarioNotFoundException("O usuario " + nomeUsuario + "nao foi encontrado");
         return  usuarioOptional.get();
     }
 
@@ -134,13 +132,13 @@ public class UsuarioService implements UserDetailsService {
 
     public Integer findIdUsuarioByNomeUsuario(String nomeUsuario) throws UsuarioNotFoundException {
         Integer id = usuarioRepository.findIdUsuarioByNomeUsuario(nomeUsuario);
-        if(id == null) throw new UsuarioNotFoundException();
+        if(id == null) throw new UsuarioNotFoundException("O usuario " + nomeUsuario + "nao foi encontrado");
         return id;
     }
 
     public String findNomeUsuarioByUsuarioId(int id) throws UsuarioNotFoundException {
         String nomeUsuario = usuarioRepository.findNomeUsuarioByUsuarioId(id);
-        if(nomeUsuario == null) throw new UsuarioNotFoundException();
+        if(nomeUsuario == null) throw new UsuarioNotFoundException("O usuario de id = " + id + "nao foi encontrado");
         return nomeUsuario;
     }
 

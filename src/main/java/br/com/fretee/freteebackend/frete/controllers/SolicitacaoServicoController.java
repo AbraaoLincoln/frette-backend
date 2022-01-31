@@ -1,6 +1,6 @@
 package br.com.fretee.freteebackend.frete.controllers;
 
-import br.com.fretee.freteebackend.exceptions.UsuarioNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.dto.PrecoFreteDTO;
 import br.com.fretee.freteebackend.frete.dto.SolicitacaoServicoDTO;
 import br.com.fretee.freteebackend.frete.exceptions.*;
@@ -22,157 +22,44 @@ public class SolicitacaoServicoController {
     private FreteService freteService;
 
     @PostMapping("/solicitacao")
-    public ResponseEntity solicitarServico(Principal principal, @RequestBody SolicitacaoServicoDTO solicitacaoServicoDTO) {
-        try{
-            freteService.solicitarServico(principal, solicitacaoServicoDTO);
-            return ResponseEntity.created(new URI("/api/frete/solicita-servico/solicitar")).build();
-        } catch (UsuarioNotFoundException e) {
-            log.error("Usuario {} ou {} nao encontrado", principal.getName(), solicitacaoServicoDTO.getPrestadorServicoNomeUsuario());
-            return ResponseEntity.badRequest().build();
-        } catch (SolicitacaoNotValidException e) {
-            log.error("Solicitacao de servico nao e valida");
-            return ResponseEntity.badRequest().build();
-        } catch (TimeBetweenSolicitacoesNotValidException e) {
-            log.error("Tempo perminito entre solicitacoes ainda nao passou");
-            return ResponseEntity.badRequest().build();
-        } catch (InvalidFirebaseToken e) {
-            log.error("firebase token invalido");
-            return ResponseEntity.internalServerError().build();
-        } catch (URISyntaxException e) {
-            log.error("URISyntaxException");
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity solicitarServico(Principal principal, @RequestBody SolicitacaoServicoDTO solicitacaoServicoDTO) throws SolicitacaoNotValidException, InvalidFirebaseToken, TimeBetweenSolicitacoesNotValidException, UsuarioNotFoundException, URISyntaxException {
+        freteService.solicitarServico(principal, solicitacaoServicoDTO);
+        return ResponseEntity.created(new URI("/api/frete/solicita-servico/solicitar")).build();
     }
 
     @PutMapping("/{freteId}/solicitacao/cancelar")
-    public ResponseEntity cancelarSolicitacao(Principal principal, @PathVariable int freteId) {
-
-        try{
-            freteService.cancelarSolicitacao(principal, freteId);
-            return ResponseEntity.ok().build();
-        } catch (FreteNotFoundException e) {
-            log.error("Frete de id ={} nao encontrado", freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (InvalidFirebaseToken e) {
-            log.error("Firebase token invalido");
-            return ResponseEntity.internalServerError().build();
-        }  catch (CannotUpdateFreteStatusException e) {
-            log.error("O frete nao pode ter seu status atualizado", principal.getName(), freteId);
-            return ResponseEntity.internalServerError().build();
-        } catch (OnlyContratanteCanDoThisActionException e) {
-            log.error("O usuario {} nao e contratante no frete de id = {}", principal.getName(), freteId);
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity cancelarSolicitacao(Principal principal, @PathVariable int freteId) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyContratanteCanDoThisActionException {
+        freteService.cancelarSolicitacao(principal, freteId);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{freteId}/preco/informar")
-    public ResponseEntity informaPreco(Principal principal, @PathVariable int freteId, @RequestBody PrecoFreteDTO precoFreteDTO) {
-
-        try{
-            freteService.informarPrecoServico(principal, precoFreteDTO);
-            return ResponseEntity.ok().build();
-        } catch (FreteNotFoundException e) {
-            log.error("Frete de id ={} nao encontrado", freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (InvalidFirebaseToken e) {
-            log.error("Firebase token invalido");
-            return ResponseEntity.internalServerError().build();
-        } catch (OnlyPrestadorServicoCanDoThisActionException e) {
-            log.error("O usuario {} nao e prestador de servico no frete de id = {}", principal.getName(), freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (CannotUpdateFreteStatusException e) {
-            log.error("O frete nao pode ter seu status atualizado", principal.getName(), freteId);
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity informaPreco(Principal principal, @PathVariable int freteId, @RequestBody PrecoFreteDTO precoFreteDTO) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyPrestadorServicoCanDoThisActionException {
+        freteService.informarPrecoServico(principal, precoFreteDTO);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{freteId}/preco/aceitar")
-    public ResponseEntity aceitarPreco(Principal principal, @PathVariable int freteId) {
-
-        try{
-            freteService.aceitarPreco(principal, freteId);
-            return ResponseEntity.ok().build();
-        } catch (FreteNotFoundException e) {
-            log.error("Frete de id ={} nao encontrado", freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (InvalidFirebaseToken e) {
-            log.error("Firebase token invalido");
-            return ResponseEntity.internalServerError().build();
-        }  catch (CannotUpdateFreteStatusException e) {
-            log.error("O frete nao pode ter seu status atualizado", principal.getName(), freteId);
-            return ResponseEntity.internalServerError().build();
-        } catch (OnlyContratanteCanDoThisActionException e) {
-            log.error("O usuario {} nao e contratante no frete de id = {}", principal.getName(), freteId);
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity aceitarPreco(Principal principal, @PathVariable int freteId) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyContratanteCanDoThisActionException {
+        freteService.aceitarPreco(principal, freteId);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{freteId}/preco/recusar")
-    public ResponseEntity recusarPreco(Principal principal, @PathVariable int freteId) {
-
-        try{
-            freteService.recusarPreco(principal, freteId);
-            return ResponseEntity.ok().build();
-        } catch (FreteNotFoundException e) {
-            log.error("Frete de id ={} nao encontrado", freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (InvalidFirebaseToken e) {
-            log.error("Firebase token invalido");
-            return ResponseEntity.internalServerError().build();
-        }  catch (CannotUpdateFreteStatusException e) {
-            log.error("O frete nao pode ter seu status atualizado", principal.getName(), freteId);
-            return ResponseEntity.internalServerError().build();
-        } catch (OnlyContratanteCanDoThisActionException e) {
-            log.error("O usuario {} nao e contratante no frete de id = {}", principal.getName(), freteId);
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity recusarPreco(Principal principal, @PathVariable int freteId) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyContratanteCanDoThisActionException {
+        freteService.recusarPreco(principal, freteId);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{freteId}/cancelar")
-    public ResponseEntity cancelarServico(Principal principal, @PathVariable int freteId) {
-
-        try{
-            freteService.cancelarServico(principal, freteId);
-            return ResponseEntity.ok().build();
-        } catch (FreteNotFoundException e) {
-            log.error("Frete de id ={} nao encontrado", freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (InvalidFirebaseToken e) {
-            log.error("Firebase token invalido");
-            return ResponseEntity.internalServerError().build();
-        }  catch (CannotUpdateFreteStatusException e) {
-            log.error("O frete nao pode ter seu status atualizado", principal.getName(), freteId);
-            return ResponseEntity.internalServerError().build();
-        } catch (OnlyContratanteCanDoThisActionException e) {
-            log.error("O usuario {} nao e contratante no frete de id = {}", principal.getName(), freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (OnlyPrestadorServicoCanDoThisActionException e) {
-            log.error("O usuario {} nao e prestador de servico no frete de id = {}", principal.getName(), freteId);
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity cancelarServico(Principal principal, @PathVariable int freteId) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyPrestadorServicoCanDoThisActionException, OnlyContratanteCanDoThisActionException {
+        freteService.cancelarServico(principal, freteId);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{freteId}/finalizar")
-    public ResponseEntity finalizarServico(Principal principal, @PathVariable int freteId) {
-
-        try{
-            freteService.finalizarServico(principal, freteId);
-            return ResponseEntity.ok().build();
-        } catch (FreteNotFoundException e) {
-            log.error("Frete de id ={} nao encontrado", freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (InvalidFirebaseToken e) {
-            log.error("Firebase token invalido");
-            return ResponseEntity.internalServerError().build();
-        }  catch (CannotUpdateFreteStatusException e) {
-            log.error("O frete nao pode ter seu status atualizado", principal.getName(), freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (OnlyContratanteCanDoThisActionException e) {
-            log.error("O usuario {} nao e contratante no frete de id = {}", principal.getName(), freteId);
-            return ResponseEntity.badRequest().build();
-        } catch (OnlyPrestadorServicoCanDoThisActionException e) {
-            log.error("O usuario {} nao e prestador de servico no frete de id = {}", principal.getName(), freteId);
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity finalizarServico(Principal principal, @PathVariable int freteId) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyPrestadorServicoCanDoThisActionException, OnlyContratanteCanDoThisActionException {
+        freteService.finalizarServico(principal, freteId);
+        return ResponseEntity.ok().build();
     }
 }
