@@ -33,6 +33,12 @@ public class SolicitacaoServicoController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/{freteId}/solicitacao/recusar")
+    public ResponseEntity recusarSolicitacao(Principal principal, @PathVariable int freteId) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyPrestadorServicoCanDoThisActionException {
+        freteService.recusarSolicitacao(principal, freteId);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{freteId}/preco/informar")
     public ResponseEntity informaPreco(Principal principal, @PathVariable int freteId, @RequestBody PrecoFreteDTO precoFreteDTO) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyPrestadorServicoCanDoThisActionException {
         freteService.informarPrecoServico(principal, precoFreteDTO);
