@@ -1,5 +1,6 @@
 package br.com.fretee.freteebackend.frete.service;
 
+import br.com.fretee.freteebackend.frete.dto.FreteDTO;
 import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.dto.FreteNotificacao;
 import br.com.fretee.freteebackend.frete.dto.PrecoFreteDTO;
@@ -201,6 +202,21 @@ public class FreteService {
         return frete;
     }
 
+    private FreteDTO buildFreteDTOFromFrete(Frete frete) {
+        var freteDTO = new FreteDTO();
+
+        freteDTO.setId(frete.getId());
+        freteDTO.setOrigem(frete.getOrigem());
+        freteDTO.setDestino(frete.getDestino());
+        freteDTO.setData(frete.getData());
+        freteDTO.setHora(frete.getHora());
+        freteDTO.setPreco(frete.getPreco());
+        freteDTO.setDescricaoCarga(frete.getDescricaoCarga());
+        freteDTO.setPrecisaAjudade(frete.getPrecisaAjudade());
+
+        return freteDTO;
+    }
+
     private SolicitacaoServicoDTO buildSolicitacaoServicoDTOFromFrete(Frete frete) {
         var solicitacaoServicoDTO = new SolicitacaoServicoDTO();
 
@@ -224,5 +240,22 @@ public class FreteService {
         System.out.println(solicitacaoServicoDTO.getHora());
         System.out.println(solicitacaoServicoDTO.getPreco());
         System.out.println(solicitacaoServicoDTO.getPrestadorServicoNomeUsuario());
+    }
+
+    public List<FreteDTO> getFretesAgendados(Principal principal) throws UsuarioNotFoundException {
+        int idUsuarioLogado = usuarioService.findIdUsuarioByNomeUsuario(principal.getName());
+        List<Frete> fretes = freteRepository.findByContratanteIdOrPrestadorServicoIdAndStatus(idUsuarioLogado, StatusFrete.AGENDADO.name());
+        System.out.println(StatusFrete.AGENDADO.name());
+        System.out.println();
+        List<FreteDTO> fretesDTO = new ArrayList<>();
+        for(Frete frete : fretes) {
+            FreteDTO freteDTO = buildFreteDTOFromFrete(frete);
+            freteDTO.setContratanteNomeUsuario(frete.getContratante().getNomeUsuario());
+            freteDTO.setPrestadorServicoNomeUsuario(frete.getPrestadorServico().getNomeUsuario());
+            freteDTO.setStatus(frete.getStatus().toString());
+            fretesDTO.add(freteDTO);
+        }
+
+        return fretesDTO;
     }
 }
