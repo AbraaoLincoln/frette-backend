@@ -30,6 +30,8 @@ public class Frete {
     @Enumerated(EnumType.STRING)
     private StatusFrete status;
     private LocalDateTime notificacaoEnviadaEm;
+    private float notaContratanteRecebeu;
+    private float notaPrestadorServicoRecebeu;
 
     @OneToOne(fetch = FetchType.EAGER)
     private Usuario contratante;

@@ -213,6 +213,8 @@ public class FreteService {
         freteDTO.setPreco(frete.getPreco());
         freteDTO.setDescricaoCarga(frete.getDescricaoCarga());
         freteDTO.setPrecisaAjudade(frete.getPrecisaAjudade());
+        freteDTO.setNotaContratanteRecebeu(frete.getNotaContratanteRecebeu());
+        freteDTO.setNotaPrestadorServicoRecebeu(frete.getNotaPrestadorServicoRecebeu());
 
         return freteDTO;
     }

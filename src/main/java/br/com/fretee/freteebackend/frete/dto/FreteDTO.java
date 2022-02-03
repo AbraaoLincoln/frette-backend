@@ -18,4 +18,6 @@ public class FreteDTO {
     private String descricaoCarga;
     private Boolean precisaAjudade;
     private String status;
+    private float notaContratanteRecebeu;
+    private float notaPrestadorServicoRecebeu;
 }
