@@ -160,7 +160,7 @@ public class FreteService {
 
     public List<FreteNotificacao> getNotificacoes(String nomeUsuario) throws UsuarioNotFoundException, FreteNotFoundException {
         int usuarioId = usuarioService.findIdUsuarioByNomeUsuario(nomeUsuario);
-        Optional<List<Frete>> fretesOptional = freteRepository.findFreteStatusAndIdByContratanteIdOrPrestadorServicoId(usuarioId);
+        Optional<List<Frete>> fretesOptional = freteRepository.findFreteByContratanteIdOrPrestadorServicoId(usuarioId);
         if(fretesOptional.isEmpty()) throw new FreteNotFoundException("O fretes do usuario " + nomeUsuario + "nao foi encontrado");
         List<Frete> fretes = fretesOptional.get();
 
@@ -169,6 +169,8 @@ public class FreteService {
             FreteNotificacao notificacao = new FreteNotificacao();
             notificacao.setId(frete.getId());
             notificacao.setStatus(frete.getStatus().toString());
+            notificacao.setContratante(frete.getContratante().getNomeUsuario());
+            notificacao.setPrestadorServico(frete.getPrestadorServico().getNomeUsuario());
             notificacoes.add(notificacao);
         });
 

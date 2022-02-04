@@ -6,4 +6,6 @@ import lombok.Data;
 public class FreteNotificacao {
     private int id;
     private String status;
+    private String contratante;
+    private String prestadorServico;
 }
