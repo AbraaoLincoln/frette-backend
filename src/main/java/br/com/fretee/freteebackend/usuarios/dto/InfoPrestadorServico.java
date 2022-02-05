@@ -9,9 +9,16 @@ import lombok.NoArgsConstructor;
 public class InfoPrestadorServico {
     private float reputacao;
     private int veiculo;
+    private int numeroDeFretesRealizados;
 
     public InfoPrestadorServico(PrestadorServico prestadorServico) {
-        this.reputacao = prestadorServico.getReputacao();
         this.veiculo = prestadorServico.getVeiculo().getId();
+        this.numeroDeFretesRealizados = prestadorServico.getNumeroDeFretesRealizados();
+
+        if(prestadorServico.getNumeroDeFretesRealizados() != 0) {
+            this.reputacao = prestadorServico.getSomaNotasAvaliacao() / prestadorServico.getNumeroDeFretesRealizados();
+        }else {
+            this.reputacao = 0;
+        }
     }
 }

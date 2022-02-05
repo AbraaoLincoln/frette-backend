@@ -98,7 +98,6 @@ public class UsuarioService implements UserDetailsService {
     public UsuarioDTO getUsuarioInfo(Principal principal) throws UsuarioNotFoundException {
         Usuario usuario = findUsuarioByNomeUsuario(principal.getName());
         UsuarioDTO usuarioDTO = new UsuarioDTO(usuario);
-        usuarioDTO.setFretesRealizados(freteApi.getNumeroDeFretesRealizados(usuario.getId()));
         return usuarioDTO;
     }
 

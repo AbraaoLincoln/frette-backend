@@ -21,13 +21,14 @@ public class Usuario {
     private boolean ativo = true;
     private LocalDate dataCriacao = LocalDate.now();
     private String nomeCompleto;
-    private float reputacao;
+    private float somaNotasAvaliacao;
     private String telefone;
     private String foto;
     @Column(unique = true)
     private String nomeUsuario;
     private String senha;
     private String firebaseToken;
+    private int numeroDeFretesContratados;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(schema = "usuario")

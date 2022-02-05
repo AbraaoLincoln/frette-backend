@@ -16,7 +16,7 @@ public class UsuarioDTO {
     private String telefone;
     private String foto;
     private String nomeUsuario;
-    private int fretesRealizados;
+    private int numeroDeFretesContratados;
     private double distancia;
     private InfoPrestadorServico prestadorServico;
 
@@ -35,7 +35,13 @@ public class UsuarioDTO {
         this.nomeUsuario = usuario.getNomeUsuario();
         this.foto = usuario.getFoto();
         this.telefone = usuario.getTelefone();
-        this.reputacao = usuario.getReputacao();
+        this.numeroDeFretesContratados = usuario.getNumeroDeFretesContratados();
+
+        if(usuario.getNumeroDeFretesContratados() != 0) {
+            this.reputacao = usuario.getSomaNotasAvaliacao() / usuario.getNumeroDeFretesContratados();
+        }else {
+            this.reputacao = 0;
+        }
     }
 
     private String fomatarData(LocalDate data) {

@@ -17,10 +17,15 @@ public class PrestadorServicoDTO {
     public PrestadorServicoDTO(Usuario usuario, PrestadorServico prestadorServico) {
         this.nomeCompleto = formatarNome(usuario.getNomeCompleto());
         this.nomeUsuario = usuario.getNomeUsuario();
-        this.reputacao = prestadorServico.getReputacao();
         this.telefone = usuario.getTelefone();
         this.foto = usuario.getFoto();
         this.veiculo = prestadorServico.getVeiculo().getId();
+
+        if(prestadorServico.getNumeroDeFretesRealizados() != 0) {
+            this.reputacao = prestadorServico.getSomaNotasAvaliacao() / prestadorServico.getNumeroDeFretesRealizados();
+        }else {
+            this.reputacao = 0;
+        }
     }
 
     private String formatarNome(String nomeCompleto) {

@@ -1,10 +1,7 @@
 package br.com.fretee.freteebackend.frete.service;
 
-import br.com.fretee.freteebackend.frete.dto.FreteDTO;
+import br.com.fretee.freteebackend.frete.dto.*;
 import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
-import br.com.fretee.freteebackend.frete.dto.FreteNotificacao;
-import br.com.fretee.freteebackend.frete.dto.PrecoFreteDTO;
-import br.com.fretee.freteebackend.frete.dto.SolicitacaoServicoDTO;
 import br.com.fretee.freteebackend.frete.entity.FinalizaServicoComoContratanteStrategy;
 import br.com.fretee.freteebackend.frete.entity.FinalizaServicoComoPrestadorServicoStrategy;
 import br.com.fretee.freteebackend.frete.entity.FinalizarServicoStrategy;
@@ -13,6 +10,7 @@ import br.com.fretee.freteebackend.frete.enums.StatusFrete;
 import br.com.fretee.freteebackend.frete.exceptions.*;
 import br.com.fretee.freteebackend.frete.repository.FreteRepository;
 import br.com.fretee.freteebackend.usuarios.entity.Usuario;
+import br.com.fretee.freteebackend.usuarios.service.PrestadorServicoService;
 import br.com.fretee.freteebackend.usuarios.service.UsuarioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +27,8 @@ import java.util.Optional;
 public class FreteService {
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private PrestadorServicoService prestadorServicoService;
     @Autowired
     private FreteRepository freteRepository;
     @Autowired
@@ -92,20 +92,35 @@ public class FreteService {
         }
     }
 
-    public void finalizarServico(Principal principal, int freteId) throws InvalidFirebaseToken, FreteNotFoundException, OnlyContratanteCanDoThisActionException, CannotUpdateFreteStatusException, OnlyPrestadorServicoCanDoThisActionException {
+    public void finalizarServico(Principal principal, int freteId, AvaliacaoDTO avaliacaoDTO) throws InvalidFirebaseToken, FreteNotFoundException, OnlyContratanteCanDoThisActionException, CannotUpdateFreteStatusException, OnlyPrestadorServicoCanDoThisActionException {
         FinalizarServicoStrategy finalizarServicoStrategy = null;
         Frete frete = findFreteById(freteId);
         boolean usuarioLogadoEhContratante = principal.getName().equals(frete.getContratante().getNomeUsuario());
         boolean usuarioLogadoEhPrestadorServico = principal.getName().equals(frete.getPrestadorServico().getNomeUsuario());
 
-        if(usuarioLogadoEhContratante) finalizarServicoStrategy = new FinalizaServicoComoContratanteStrategy(frete, freteRepository, notificacaoService);
-        else if(usuarioLogadoEhPrestadorServico) finalizarServicoStrategy = new FinalizaServicoComoPrestadorServicoStrategy(frete, freteRepository, notificacaoService);
-
-        if(finalizarServicoStrategy != null) {
-            finalizarServicoStrategy.atualizarFreteParaFinalizado();
-        }else {
-            throw new CannotUpdateFreteStatusException();
+        if(usuarioLogadoEhContratante) {
+            finalizarServicoStrategy = new FinalizaServicoComoContratanteStrategy(frete, freteRepository, notificacaoService);
+            frete.setNotaPrestadorServicoRecebeu(avaliacaoDTO.getNota());
         }
+        else if(usuarioLogadoEhPrestadorServico) {
+            finalizarServicoStrategy = new FinalizaServicoComoPrestadorServicoStrategy(frete, freteRepository, notificacaoService);
+            frete.setNotaContratanteRecebeu(avaliacaoDTO.getNota());
+        }
+
+        if(finalizarServicoStrategy != null) frete = finalizarServicoStrategy.atualizarFreteParaFinalizado();
+        else throw new CannotUpdateFreteStatusException();
+
+        if(frete.getStatus() == StatusFrete.FINALIZADO)
+            atualizarNotaDoContratanteEPrestadorDeServico(frete.getContratante(), frete.getPrestadorServico(), frete);
+
+        freteRepository.save(frete);
+    }
+
+    private void atualizarNotaDoContratanteEPrestadorDeServico(Usuario contratante, Usuario prestadorServico, Frete frete) {
+        contratante.setSomaNotasAvaliacao(contratante.getSomaNotasAvaliacao() + frete.getNotaContratanteRecebeu());
+        contratante.setNumeroDeFretesContratados(contratante.getNumeroDeFretesContratados() + 1);
+        usuarioService.save(contratante);
+        prestadorServicoService.atualizarSomaDasNotasEFretesRealizados(prestadorServico.getId(), frete.getNotaPrestadorServicoRecebeu());
     }
 
     private void atualizarStatusFreteComoContratante(Principal principal, int freteId, StatusFrete statusQueDeveEsta, StatusFrete novoStatus, String notificacaoTitulo) throws FreteNotFoundException, CannotUpdateFreteStatusException, OnlyContratanteCanDoThisActionException, InvalidFirebaseToken {
@@ -261,5 +276,20 @@ public class FreteService {
         }
 
         return fretesDTO;
+    }
+
+    public void atualizarNotaFrete(Principal principal, int freteId, float nota) throws FreteNotFoundException, CannotUpdateNotaDoFreteException {
+        Frete frete = freteRepository.findById(freteId).orElseThrow(
+                      () ->  new FreteNotFoundException("O frete de id = " + freteId + " nao foi encontrado"));
+
+        if(principal.getName().equals(frete.getContratante().getNomeUsuario())) {
+            frete.setNotaPrestadorServicoRecebeu(nota);
+        }else if(principal.getName().equals(frete.getPrestadorServico().getNomeUsuario())){
+            frete.setNotaContratanteRecebeu(nota);
+        }else {
+            throw new CannotUpdateNotaDoFreteException("O usuario " + principal.getName() + " nao e o contrante nem o prestador de servico do frete de id = " + freteId);
+        }
+
+        freteRepository.save(frete);
     }
 }

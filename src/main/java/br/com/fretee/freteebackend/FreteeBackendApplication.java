@@ -115,7 +115,7 @@ public class FreteeBackendApplication {
 				usuario.setSenha("123");
 				usuario.setTelefone(usuarioInfo[2]);
 				usuario.setFoto(usuarioInfo[3]);
-				usuario.setReputacao(args6[index]);
+				//TODO: adicioanar somas das notas e quantidade de fretes realizados
 				usuario.setPermissoes(new ArrayList<>());
 				Permissao permissaoUsuario = new Permissao();
 				permissaoUsuario.setId(Permissoes.USUARIO.getValue());
@@ -150,7 +150,6 @@ public class FreteeBackendApplication {
 			usuario.setSenha("123");
 			usuario.setTelefone(userTest[2]);
 			usuario.setFoto(userTest[3]);
-			usuario.setReputacao(4.2f);
 			usuario.setPermissoes(new ArrayList<>());
 			Permissao permissaoUsuario = new Permissao();
 			permissaoUsuario.setId(Permissoes.USUARIO.getValue());

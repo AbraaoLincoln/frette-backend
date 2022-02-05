@@ -27,7 +27,7 @@ public class FinalizaServicoComoContratanteStrategy implements FinalizarServicoS
             frete.setStatus(StatusFrete.FINALIZADO);
         }
 
-        frete = freteRepository.save(frete);
+        //frete = freteRepository.save(frete);
 
         return notificar();
     }
@@ -36,6 +36,7 @@ public class FinalizaServicoComoContratanteStrategy implements FinalizarServicoS
         //notificacaoService.pushNotification("Frete concluido", "Verifique suas notificações", frete.getPrestadorServico().getFirebaseToken());
 
         frete.setNotificacaoEnviadaEm(LocalDateTime.now());
-        return freteRepository.save(frete);
+        //return freteRepository.save(frete);
+        return frete;
     }
 }

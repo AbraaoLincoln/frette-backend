@@ -11,7 +11,8 @@ public class PrestadorServico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private float reputacao;
+    private float somaNotasAvaliacao;
+    private int numeroDeFretesRealizados;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")

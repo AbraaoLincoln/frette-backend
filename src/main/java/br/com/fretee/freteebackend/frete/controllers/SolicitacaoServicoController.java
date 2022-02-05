@@ -1,5 +1,6 @@
 package br.com.fretee.freteebackend.frete.controllers;
 
+import br.com.fretee.freteebackend.frete.dto.AvaliacaoDTO;
 import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
 import br.com.fretee.freteebackend.frete.dto.PrecoFreteDTO;
 import br.com.fretee.freteebackend.frete.dto.SolicitacaoServicoDTO;
@@ -64,8 +65,8 @@ public class SolicitacaoServicoController {
     }
 
     @PutMapping("/{freteId}/finalizar")
-    public ResponseEntity finalizarServico(Principal principal, @PathVariable int freteId) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyPrestadorServicoCanDoThisActionException, OnlyContratanteCanDoThisActionException {
-        freteService.finalizarServico(principal, freteId);
+    public ResponseEntity finalizarServico(Principal principal, @PathVariable int freteId, @RequestBody AvaliacaoDTO avaliacaoDTO) throws CannotUpdateFreteStatusException, FreteNotFoundException, InvalidFirebaseToken, OnlyPrestadorServicoCanDoThisActionException, OnlyContratanteCanDoThisActionException, CannotUpdateNotaDoFreteException {
+        freteService.finalizarServico(principal, freteId, avaliacaoDTO);
         return ResponseEntity.ok().build();
     }
 }

@@ -1,17 +1,16 @@
 package br.com.fretee.freteebackend.frete.controllers;
 
+import br.com.fretee.freteebackend.frete.dto.AvaliacaoDTO;
 import br.com.fretee.freteebackend.frete.dto.FreteDTO;
 import br.com.fretee.freteebackend.frete.dto.FreteNotificacao;
 import br.com.fretee.freteebackend.frete.dto.SolicitacaoServicoDTO;
+import br.com.fretee.freteebackend.frete.exceptions.CannotUpdateNotaDoFreteException;
 import br.com.fretee.freteebackend.frete.exceptions.FreteNotFoundException;
 import br.com.fretee.freteebackend.frete.service.FreteService;
 import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -38,4 +37,10 @@ public class FreteController {
     public ResponseEntity<List<FreteDTO>> getFretesAgendados(Principal principal) throws UsuarioNotFoundException {
         return ResponseEntity.ok().body(freteService.getFretesAgendados(principal));
     }
+
+//    @PutMapping("/{freteId}/avaliacao")
+//    public ResponseEntity atualizarNotaFrete(Principal principal, @PathVariable int freteId, @RequestBody AvaliacaoDTO avaliacaoDTO) throws FreteNotFoundException, CannotUpdateNotaDoFreteException {
+//        freteService.atualizarNotaFrete(principal, freteId, avaliacaoDTO.getNota());
+//        return ResponseEntity.ok().build();
+//    }
 }

@@ -75,6 +75,12 @@ public class CustomControllerAdvice {
         return ResponseEntity.badRequest().build();
     }
 
+    @ExceptionHandler(CannotUpdateNotaDoFreteException.class)
+    public ResponseEntity cannotUpdateNotaDoFreteException(CannotUpdateNotaDoFreteException ex ) {
+        log.error(ex.getMessage());
+        return ResponseEntity.badRequest().build();
+    }
+
     //==================================== Java Exceptions ======================================
     @ExceptionHandler(IOException.class)
     public ResponseEntity iOException(IOException ex) {

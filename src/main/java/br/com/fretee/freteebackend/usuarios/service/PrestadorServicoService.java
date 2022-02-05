@@ -132,4 +132,8 @@ public class PrestadorServicoService {
         imageInputStream.transferTo(response.getOutputStream());
         response.flushBuffer();
     }
+
+    public void atualizarSomaDasNotasEFretesRealizados(int usuarioId, float nota) {
+        prestadorServicoRepository.atualizarSomaDasNotasEFretesRealizados(usuarioId, nota);
+    }
 }
