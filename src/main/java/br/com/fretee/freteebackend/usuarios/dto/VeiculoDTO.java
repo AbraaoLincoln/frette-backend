@@ -7,9 +7,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class VeiculoDTO {
-    private float largura;
-    private float altura;
-    private float comprimento;
+    private Float largura;
+    private Float altura;
+    private Float comprimento;
     private String foto;
     private Integer id;
 

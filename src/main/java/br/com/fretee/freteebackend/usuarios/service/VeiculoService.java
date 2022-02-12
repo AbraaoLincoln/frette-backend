@@ -7,6 +7,7 @@ import br.com.fretee.freteebackend.usuarios.entity.Veiculo;
 import br.com.fretee.freteebackend.usuarios.repository.VeiculoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
@@ -36,5 +37,29 @@ public class VeiculoService {
 
         return new VeiculoDTO(veiculo.getLargura(), veiculo.getAltura(), veiculo.getComprimento(),
                               veiculo.getFoto(), veiculo.getId());
+    }
+
+    public Veiculo atualizarVeiculoInfo(int veiculoId, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) throws VeiculoNotFoundException {
+        Veiculo veiculo = findVeiculoById(veiculoId);
+
+        if(veiculoDTO.getAltura() != null) {
+            veiculo.setAltura(veiculoDTO.getAltura());
+        }
+
+        if(veiculoDTO.getLargura() != null) {
+            veiculo.setLargura(veiculoDTO.getLargura());
+        }
+
+        if(veiculoDTO.getComprimento() != null) {
+            veiculo.setComprimento(veiculoDTO.getComprimento());
+        }
+
+        if(fotoVeiculo != null) {
+            String fotoVeiculoId = veiculo.getFoto();
+            veiculo.setFoto(imagemService.saveImage(fotoVeiculo));
+            imagemService.deleteImagem(fotoVeiculoId);
+        }
+
+        return veiculoRepository.save(veiculo);
     }
 }

@@ -1,9 +1,6 @@
 package br.com.fretee.freteebackend.usuarios.service;
 
-import br.com.fretee.freteebackend.usuarios.exceptions.PrestadorServicoNotFoundException;
-import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioAlreadyJoinAsPrestadorServico;
-import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
-import br.com.fretee.freteebackend.usuarios.exceptions.VeiculoNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.*;
 import br.com.fretee.freteebackend.usuarios.dto.NovoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.PrestadorServicoDTO;
 import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
@@ -135,5 +132,17 @@ public class PrestadorServicoService {
 
     public void atualizarSomaDasNotasEFretesRealizados(int usuarioId, float nota) {
         prestadorServicoRepository.atualizarSomaDasNotasEFretesRealizados(usuarioId, nota);
+    }
+
+    public void atualizarVeiculoInfo(Principal principal, int veiculoId, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) throws PrestadorServicoNotFoundException, VeiculoNotFoundException, UsuarioNaoEDonoDoVeiculoException {
+        Integer prestadorServicoId = prestadorServicoRepository.findPrestadorServicoIdByNomeUsuario(principal.getName()).
+                                     orElseThrow(() -> new PrestadorServicoNotFoundException("O usuario " +  principal.getName() + " nao e prestador servico"));
+        Veiculo veiculo =  veiculoService.findVeiculoById(veiculoId);
+
+        if(veiculo.getPrestadorServico().getId() == prestadorServicoId) {
+            veiculoService.atualizarVeiculoInfo(veiculoId, veiculoDTO, fotoVeiculo);
+        }else {
+            throw new UsuarioNaoEDonoDoVeiculoException("O usuario " + principal.getName() + " nao e o dono do veiculo");
+        }
     }
 }

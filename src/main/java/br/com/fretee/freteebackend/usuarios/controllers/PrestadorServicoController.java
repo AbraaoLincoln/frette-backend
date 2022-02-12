@@ -1,9 +1,6 @@
 package br.com.fretee.freteebackend.usuarios.controllers;
 
-import br.com.fretee.freteebackend.usuarios.exceptions.PrestadorServicoNotFoundException;
-import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioAlreadyJoinAsPrestadorServico;
-import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
-import br.com.fretee.freteebackend.usuarios.exceptions.VeiculoNotFoundException;
+import br.com.fretee.freteebackend.usuarios.exceptions.*;
 import br.com.fretee.freteebackend.usuarios.dto.NovoPrestadorServico;
 import br.com.fretee.freteebackend.usuarios.dto.PrestadorServicoDTO;
 import br.com.fretee.freteebackend.usuarios.dto.VeiculoDTO;
@@ -22,6 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/prestador-servico")
@@ -33,7 +31,7 @@ public class PrestadorServicoController {
     private VeiculoService veiculoService;
 
     @PostMapping
-    public ResponseEntity cadastrarPrestadorServico(Principal principal, NovoPrestadorServico prestadorServicoDTO, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) throws UsuarioNotFoundException, UsuarioAlreadyJoinAsPrestadorServico, URISyntaxException {
+    public ResponseEntity cadastrarPrestadorServico(Principal principal, NovoPrestadorServico prestadorServicoDTO, VeiculoDTO veiculoDTO, @RequestParam MultipartFile fotoVeiculo) throws UsuarioNotFoundException, UsuarioAlreadyJoinAsPrestadorServico, URISyntaxException {
         prestadorServicoService.cadastraUsuarioComoPrestadorServico(principal, prestadorServicoDTO, veiculoDTO, fotoVeiculo);
         return ResponseEntity.created(new URI("/api/prestador-servico")).build();
     }
@@ -68,5 +66,11 @@ public class PrestadorServicoController {
         localizacao.setLongitude(longitude);
         List<PrestadorServicoDTO> prestadorServicoDTOS = prestadorServicoService.getPrestadoreDeServicoProximo(localizacao, principal);
         return ResponseEntity.ok().body(prestadorServicoDTOS);
+    }
+
+    @PutMapping("/veiculo/{veiculoId}")
+    public ResponseEntity atualizarVeiculoInfo(Principal principal, @PathVariable int veiculoId, VeiculoDTO veiculoDTO, Optional<MultipartFile> fotoVeiculo) throws PrestadorServicoNotFoundException, UsuarioNaoEDonoDoVeiculoException, VeiculoNotFoundException {
+        prestadorServicoService.atualizarVeiculoInfo(principal, veiculoId, veiculoDTO, fotoVeiculo.orElseGet(() -> null));
+        return ResponseEntity.ok().build();
     }
 }

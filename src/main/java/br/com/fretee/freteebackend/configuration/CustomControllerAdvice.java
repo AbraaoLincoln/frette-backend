@@ -81,6 +81,12 @@ public class CustomControllerAdvice {
         return ResponseEntity.badRequest().build();
     }
 
+    @ExceptionHandler(UsuarioNaoEDonoDoVeiculoException.class)
+    public ResponseEntity usuarioNaoEDonoDoVeiculoException(UsuarioNaoEDonoDoVeiculoException ex ) {
+        log.error(ex.getMessage());
+        return ResponseEntity.badRequest().build();
+    }
+
     //==================================== Java Exceptions ======================================
     @ExceptionHandler(IOException.class)
     public ResponseEntity iOException(IOException ex) {

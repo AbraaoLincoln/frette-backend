@@ -18,4 +18,7 @@ public interface PrestadorServicoRepository extends CrudRepository<PrestadorServ
     @Transactional
     @Query(value = "update usuario.prestador_servico set soma_notas_avaliacao = soma_notas_avaliacao + :nota, numero_de_fretes_realizados = numero_de_fretes_realizados + 1 where usuario_id = :usuarioId", nativeQuery = true)
     public void atualizarSomaDasNotasEFretesRealizados(int usuarioId, float nota);
+
+    @Query(value = "select ps.id from usuario.usuario u inner join usuario.prestador_servico ps on u.id = ps.usuario_id where u.nome_usuario = :nomeUsuario", nativeQuery = true)
+    public Optional<Integer> findPrestadorServicoIdByNomeUsuario(String nomeUsuario);
 }
