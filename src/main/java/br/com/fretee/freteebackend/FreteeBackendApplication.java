@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @SpringBootApplication
 public class FreteeBackendApplication {
@@ -103,6 +104,7 @@ public class FreteeBackendApplication {
 
 			int index = 0;
 
+			Random random = new Random();
 			for(String[] usuarioInfo : usuarios) {
 				Localizacao loc = new Localizacao();
 				loc.setLongitude(lon);
@@ -132,6 +134,7 @@ public class FreteeBackendApplication {
 				veiculo.setAltura(10);
 				veiculo.setComprimento(100);
 				veiculo.setLargura(50);
+				veiculo.setPlaca("abc123" + random.nextInt(9));
 				veiculo = veiculoRepository.save(veiculo);
 
 				PrestadorServico prestadorServico = new PrestadorServico();

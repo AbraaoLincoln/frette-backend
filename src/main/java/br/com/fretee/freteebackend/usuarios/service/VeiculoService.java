@@ -20,6 +20,7 @@ public class VeiculoService {
     private ImagemVeiculoService imagemService;
 
     public int cadastrarVeiculo(Veiculo veiculo, MultipartFile foto) {
+        //TODO: validar veiculo
         var imagemId = imagemService.saveImage(foto);
         veiculo.setFoto(imagemId);
 
@@ -36,7 +37,7 @@ public class VeiculoService {
         Veiculo veiculo = findVeiculoById(prestadorServico.getVeiculo().getId());
 
         return new VeiculoDTO(veiculo.getLargura(), veiculo.getAltura(), veiculo.getComprimento(),
-                              veiculo.getFoto(), veiculo.getId());
+                              veiculo.getFoto(), veiculo.getId(), veiculo.getPlaca());
     }
 
     public Veiculo atualizarVeiculoInfo(int veiculoId, VeiculoDTO veiculoDTO, MultipartFile fotoVeiculo) throws VeiculoNotFoundException {
@@ -52,6 +53,10 @@ public class VeiculoService {
 
         if(veiculoDTO.getComprimento() != null) {
             veiculo.setComprimento(veiculoDTO.getComprimento());
+        }
+
+        if(veiculoDTO.getPlaca() != null && !veiculoDTO.getPlaca().isEmpty()) {
+            veiculo.setPlaca(veiculoDTO.getPlaca());
         }
 
         if(fotoVeiculo != null) {

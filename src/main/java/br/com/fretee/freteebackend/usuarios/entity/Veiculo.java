@@ -15,6 +15,7 @@ public class Veiculo {
     private float altura;
     private float comprimento;
     private String foto;
+    private String placa;
 
     @OneToOne(mappedBy = "veiculo")
     private PrestadorServico prestadorServico;

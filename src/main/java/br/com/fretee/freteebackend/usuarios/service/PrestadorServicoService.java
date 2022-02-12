@@ -120,7 +120,7 @@ public class PrestadorServicoService {
         Veiculo veiculo = veiculoService.findVeiculoById(prestadorServico.getVeiculo().getId());
 
         return new VeiculoDTO(veiculo.getLargura(), veiculo.getAltura(), veiculo.getComprimento(),
-                veiculo.getFoto(), veiculo.getId());
+                veiculo.getFoto(), veiculo.getId(), veiculo.getPlaca());
     }
 
     public void getFoto(HttpServletResponse response, String prestadoServicoNomeUsuario) throws UsuarioNotFoundException, IOException {
