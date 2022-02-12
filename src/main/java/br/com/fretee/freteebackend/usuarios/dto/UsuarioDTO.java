@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 @Data
 @NoArgsConstructor
 public class UsuarioDTO {
+    private int id;
     private String dataCriacao;
     private String nomeCompleto;
     private float reputacao;
@@ -30,6 +31,7 @@ public class UsuarioDTO {
     }
 
     private void setUsuarioInfo(Usuario usuario) {
+        this.id = usuario.getId();
         this.dataCriacao = fomatarData(usuario.getDataCriacao());
         this.nomeCompleto = usuario.getNomeCompleto();
         this.nomeUsuario = usuario.getNomeUsuario();

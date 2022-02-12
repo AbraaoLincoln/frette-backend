@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/usuario")
@@ -39,6 +40,16 @@ public class UsuarioController {
 
         return ResponseEntity.created(new URI("/api/usuario")).build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity atualizarUsuario(@PathVariable int id, NovoUsuario novoUsuario, @RequestParam Optional<MultipartFile> foto) throws NomeUsuarioAlreadyInUseException, UsuarioNotFoundException {
+        log.info("atualizando informacoes(foto incluida) do usuario de id = {}", id);
+
+        usuarioService.atualizarUsuario(id, novoUsuario, foto.orElseGet(() -> null));
+
+        return ResponseEntity.ok().build();
+    }
+
 
     @GetMapping("/info")
     public ResponseEntity<UsuarioDTO> getUsuarioInfo(Principal principal) throws UsuarioNotFoundException {
@@ -72,4 +83,5 @@ public class UsuarioController {
         usuarioService.atualizarLocalizacao(principal, localizacao);
         return ResponseEntity.ok().build();
     }
+
 }

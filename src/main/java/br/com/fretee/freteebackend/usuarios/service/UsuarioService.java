@@ -1,6 +1,7 @@
 package br.com.fretee.freteebackend.usuarios.service;
 
 import br.com.fretee.freteebackend.configuration.JwtUtil;
+import br.com.fretee.freteebackend.usuarios.entity.NovoUsuario;
 import br.com.fretee.freteebackend.usuarios.exceptions.NomeUsuarioAlreadyInUseException;
 import br.com.fretee.freteebackend.usuarios.exceptions.PrestadorServicoNotFoundException;
 import br.com.fretee.freteebackend.usuarios.exceptions.UsuarioNotFoundException;
@@ -53,10 +54,7 @@ public class UsuarioService implements UserDetailsService {
     public Usuario addUsuario(Usuario usuario, MultipartFile foto) throws NomeUsuarioAlreadyInUseException {
         //TODO: validar usuario
 
-        boolean nomeUsuarioJaEstaEmUso = usuarioRepository.verificarSeNomeUsuarioJaEstaEmUso(usuario.getNomeUsuario());
-        if(nomeUsuarioJaEstaEmUso) {
-            throw new NomeUsuarioAlreadyInUseException("Nome de usuario " + usuario.getNomeUsuario() + " já está em uso");
-        }
+        verificarSeNomeUsuarioJaEstaEmUso(usuario.getNomeUsuario());
 
         if(foto != null) usuario.setFoto(imagemService.saveImage(foto));
         usuario.setSenha(bCryptPasswordEncoder.encode(usuario.getSenha()));
@@ -69,14 +67,43 @@ public class UsuarioService implements UserDetailsService {
     public Usuario addUsuarioTeste(Usuario usuario) throws NomeUsuarioAlreadyInUseException {
         //TODO: validar usuario
 
-        boolean nomeUsuarioJaEstaEmUso = usuarioRepository.verificarSeNomeUsuarioJaEstaEmUso(usuario.getNomeUsuario());
-        if(nomeUsuarioJaEstaEmUso) {
-            throw new NomeUsuarioAlreadyInUseException("Nome de usuario " + usuario.getNomeUsuario() + " já está em uso");
-        }
+        verificarSeNomeUsuarioJaEstaEmUso(usuario.getNomeUsuario());
 
         usuario.setSenha(bCryptPasswordEncoder.encode(usuario.getSenha()));
         usuario.setPermissoes(new ArrayList<>());
         permissaoService.addPermissaoDeUsuario(usuario);
+
+        return usuarioRepository.save(usuario);
+    }
+
+    private void verificarSeNomeUsuarioJaEstaEmUso(String nomeUsuario) throws NomeUsuarioAlreadyInUseException {
+        boolean nomeUsuarioJaEstaEmUso = usuarioRepository.verificarSeNomeUsuarioJaEstaEmUso(nomeUsuario);
+        if(nomeUsuarioJaEstaEmUso) {
+            throw new NomeUsuarioAlreadyInUseException("Nome de usuario " + nomeUsuario + " já está em uso");
+        }
+    }
+
+    public Usuario atualizarUsuario(int id, NovoUsuario usuarioNovaInfo, MultipartFile foto) throws UsuarioNotFoundException, NomeUsuarioAlreadyInUseException {
+        Usuario usuario = findUsuarioById(id);
+
+        if(usuarioNovaInfo.getNomeAutenticacao() != null && !usuarioNovaInfo.getNomeAutenticacao().isEmpty() && !usuario.getNomeUsuario().equals(usuarioNovaInfo.getNomeAutenticacao())) {
+            verificarSeNomeUsuarioJaEstaEmUso(usuarioNovaInfo.getNomeAutenticacao());
+            usuario.setNomeUsuario(usuarioNovaInfo.getNomeAutenticacao());
+        }
+
+        if(foto != null) {
+            String atualFotoId = usuario.getFoto();
+            usuario.setFoto(imagemService.saveImage(foto));
+            imagemService.deleteImagem(atualFotoId);
+        }
+
+        if(usuarioNovaInfo.getNomeCompleto() != null && !usuarioNovaInfo.getNomeCompleto().isEmpty()) {
+            usuario.setNomeCompleto(usuarioNovaInfo.getNomeCompleto());
+        }
+
+        if(usuarioNovaInfo.getTelefone() != null && !usuarioNovaInfo.getTelefone().isEmpty()) {
+            usuario.setTelefone(usuarioNovaInfo.getTelefone());
+        }
 
         return usuarioRepository.save(usuario);
     }
@@ -98,6 +125,11 @@ public class UsuarioService implements UserDetailsService {
     public UsuarioDTO getUsuarioInfo(Principal principal) throws UsuarioNotFoundException {
         Usuario usuario = findUsuarioByNomeUsuario(principal.getName());
         UsuarioDTO usuarioDTO = new UsuarioDTO(usuario);
+        Optional<PrestadorServico> ps = prestadorServicoRepository.findByUsuarioId(usuario.getId());
+        if(ps.isPresent()) {
+            InfoPrestadorServico infops = new InfoPrestadorServico(ps.get());
+            usuarioDTO.setPrestadorServico(infops);
+        }
         return usuarioDTO;
     }
 
