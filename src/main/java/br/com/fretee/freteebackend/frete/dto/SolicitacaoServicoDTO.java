@@ -12,8 +12,8 @@ public class SolicitacaoServicoDTO {
     private String contratanteNomeUsuario;
     private String origem;
     private String destino;
-    private LocalDate data;
-    private LocalTime hora;
+    private String data;
+    private String hora;
     private float preco;
     private String descricaoCarga;
     private Boolean precisaAjudade;

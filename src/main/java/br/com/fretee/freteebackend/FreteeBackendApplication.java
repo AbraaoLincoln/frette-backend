@@ -70,7 +70,7 @@ public class FreteeBackendApplication {
 		return new ImagemVeiculoService(path);
 	}
 
-	@Bean
+	//@Bean
 	CommandLineRunner run(PermissaoService permissaoService) {
 		return args -> {
 			permissaoService.salvarPermissao(Permissoes.ADMIN.toString());
@@ -79,7 +79,7 @@ public class FreteeBackendApplication {
 		};
 	}
 
-	@Bean
+	//@Bean
 	CommandLineRunner run1(UsuarioService usuarioService, PrestadorServicoRepository prestadorServicoRepository, VeiculoRepository veiculoRepository, LocalizacaoRepository localizacaoRepository) {
 		String[] args1 = {"Gustavo Luan Felipe Peixoto", "gustavo", "(84) 99658-8429","male_avatar", "veiculo1"};
 		String[] args2 = {"Thales Diego Severino Fogaca", "thales", "(84) 98206-3797", "male_avatar", "veiculo2"};

@@ -26,7 +26,7 @@ public class Frete {
     private LocalTime hora;
     private float preco;
     private String descricaoCarga;
-    private Boolean precisaAjudade;
+    private Boolean precisaAjudade = false;
     @Enumerated(EnumType.STRING)
     private StatusFrete status;
     private LocalDateTime notificacaoEnviadaEm;

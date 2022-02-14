@@ -17,7 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +51,7 @@ public class FreteService {
         frete.setStatus(StatusFrete.SOLICITANDO);
         frete = freteRepository.save(frete);
 
-        //notificacaoService.pushNotification("Solicitação de Serviço", "Verifique suas notificações", prestadorServico.getFirebaseToken());
+        notificacaoService.pushNotification("Solicitação de Serviço", "Verifique suas notificações", prestadorServico.getFirebaseToken());
 
         frete.setNotificacaoEnviadaEm(LocalDateTime.now());
         freteRepository.save(frete);
@@ -128,7 +132,7 @@ public class FreteService {
         if(!principal.getName().equals(frete.getContratante().getNomeUsuario())) throw new OnlyContratanteCanDoThisActionException("O usuario " + principal.getName() + " nao e o contratante do frete");
         if(frete.getStatus() != statusQueDeveEsta) throw new CannotUpdateFreteStatusException();
         frete = atualizarStatusFrete(frete, novoStatus);
-        //notificar(frete, notificacaoTitulo, frete.getPrestadorServico().getFirebaseToken());
+        notificar(frete, notificacaoTitulo, frete.getPrestadorServico().getFirebaseToken());
     }
 
     private void atualizarStatusFreteComoPrestadorServico(Principal principal, int freteId, StatusFrete statusQueDeveEsta, StatusFrete novoStatus, String notificacaoTitulo) throws FreteNotFoundException, CannotUpdateFreteStatusException, OnlyPrestadorServicoCanDoThisActionException, InvalidFirebaseToken {
@@ -136,7 +140,7 @@ public class FreteService {
         if(!principal.getName().equals(frete.getPrestadorServico().getNomeUsuario())) throw new OnlyPrestadorServicoCanDoThisActionException("O usuario " + principal.getName() + "nao e o prestador de servico do frete");
         if(frete.getStatus() != statusQueDeveEsta) throw new CannotUpdateFreteStatusException();
         frete = atualizarStatusFrete(frete, novoStatus);
-        //notificar(frete, notificacaoTitulo, frete.getContratante().getFirebaseToken());
+        notificar(frete, notificacaoTitulo, frete.getContratante().getFirebaseToken());
     }
 
     private Frete atualizarStatusFrete(Frete frete, StatusFrete novoStatus) throws InvalidFirebaseToken {
@@ -162,7 +166,7 @@ public class FreteService {
 
         frete.setPreco(precoDTO.getPreco());
         atualizarStatusFrete(frete, StatusFrete.PRECO_INFORMADO);
-        //notificar(frete, notificaoTitulo, frete.getContratante().getFirebaseToken());
+        notificar(frete, notificaoTitulo, frete.getContratante().getFirebaseToken());
     }
 
     private void validarInformacaoPreco(PrecoFreteDTO preco){}
@@ -210,8 +214,8 @@ public class FreteService {
 
         frete.setOrigem(solicitacaoServicoDTO.getOrigem());
         frete.setDestino(solicitacaoServicoDTO.getDestino());
-        frete.setData(solicitacaoServicoDTO.getData());
-        frete.setHora(solicitacaoServicoDTO.getHora());
+        frete.setData(LocalDate.parse(solicitacaoServicoDTO.getData()));
+        frete.setHora(LocalTime.parse(solicitacaoServicoDTO.getHora()));
         frete.setPreco(solicitacaoServicoDTO.getPreco());
         frete.setDescricaoCarga(solicitacaoServicoDTO.getDescricaoCarga());
         frete.setPrecisaAjudade(solicitacaoServicoDTO.getPrecisaAjudade());
@@ -225,8 +229,8 @@ public class FreteService {
         freteDTO.setId(frete.getId());
         freteDTO.setOrigem(frete.getOrigem());
         freteDTO.setDestino(frete.getDestino());
-        freteDTO.setData(frete.getData());
-        freteDTO.setHora(frete.getHora());
+        freteDTO.setData(frete.getData().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+        freteDTO.setHora(frete.getHora().truncatedTo(ChronoUnit.MINUTES).toString());
         freteDTO.setPreco(frete.getPreco());
         freteDTO.setDescricaoCarga(frete.getDescricaoCarga());
         freteDTO.setPrecisaAjudade(frete.getPrecisaAjudade());
@@ -242,8 +246,8 @@ public class FreteService {
         solicitacaoServicoDTO.setId(frete.getId());
         solicitacaoServicoDTO.setOrigem(frete.getOrigem());
         solicitacaoServicoDTO.setDestino(frete.getDestino());
-        solicitacaoServicoDTO.setData(frete.getData());
-        solicitacaoServicoDTO.setHora(frete.getHora());
+        solicitacaoServicoDTO.setData(frete.getData().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+        solicitacaoServicoDTO.setHora(frete.getHora().truncatedTo(ChronoUnit.MINUTES).toString());
         solicitacaoServicoDTO.setPreco(frete.getPreco());
         solicitacaoServicoDTO.setDescricaoCarga(frete.getDescricaoCarga());
         solicitacaoServicoDTO.setPrecisaAjudade(frete.getPrecisaAjudade());

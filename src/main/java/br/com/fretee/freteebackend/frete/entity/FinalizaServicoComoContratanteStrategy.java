@@ -23,17 +23,18 @@ public class FinalizaServicoComoContratanteStrategy implements FinalizarServicoS
 
         if(frete.getStatus() == StatusFrete.AGENDADO) {
             frete.setStatus(StatusFrete.CONTRATANTE_FINALIZOU);
+            notificar();
         }else if(frete.getStatus() == StatusFrete.PRESTADOR_SERVICO_FINALIZOU) {
             frete.setStatus(StatusFrete.FINALIZADO);
         }
 
         //frete = freteRepository.save(frete);
 
-        return notificar();
+        return frete;
     }
 
     private Frete notificar() throws InvalidFirebaseToken {
-        //notificacaoService.pushNotification("Frete concluido", "Verifique suas notificações", frete.getPrestadorServico().getFirebaseToken());
+        notificacaoService.pushNotification("Frete concluido", "Verifique suas notificações", frete.getPrestadorServico().getFirebaseToken());
 
         frete.setNotificacaoEnviadaEm(LocalDateTime.now());
         //return freteRepository.save(frete);
